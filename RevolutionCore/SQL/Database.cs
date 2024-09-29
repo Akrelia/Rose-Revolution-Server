@@ -1,7 +1,7 @@
 ﻿using RevolutionCore.Utils;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Npgsql;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +14,7 @@ namespace RevolutionCore.SQL
     public partial class Database
     {
         readonly string connectionString;
-        readonly SqlConnection connection;
+        readonly NpgsqlConnection connection;
 
         /// <summary>
         /// Constructor.
@@ -22,11 +22,12 @@ namespace RevolutionCore.SQL
         /// <param name="database">Database name.</param>
         /// <param name="user">User.</param>
         /// <param name="password">Password.</param>
-        public Database(string database, string user, string password)
+        public Database(string dbip, string port, string database, string user, string password)
         {
-            connectionString = $@"Data Source =.; Initial Catalog = {database}; User ID = {user}; Password = {password};";
+            Logger.LogImportantMessage("Db infos :", $"{dbip}, {port}, {database}, {user}, {password}");
+            string connectionString = $"Host={dbip};Port={port};Database={database};Username={user};Password={password};SSL Mode=Prefer;Trust Server Certificate=True;";
 
-            connection = new SqlConnection(connectionString);
+            connection = new NpgsqlConnection(connectionString);
         }
 
         /// <summary>
@@ -47,6 +48,7 @@ namespace RevolutionCore.SQL
             catch (Exception ex)
             {
                 Logger.LogFatalError($"Can't open database on SQL server : {ex.Message}");
+
 
                 return false;
             }
