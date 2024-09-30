@@ -67,7 +67,7 @@ namespace RevolutionCore.Networking
         {
             clients = new List<T>();
             servers = new List<IscServer>();
-            database = new Database(Configuration.DatabaseName, Configuration.DatabaseUser, Configuration.DatabasePassword);
+            database = new Database(Configuration.DatabaseDbIp, Configuration.DatabasePort, Configuration.DatabaseName, Configuration.DatabaseUser, Configuration.DatabasePassword);
             listener = new TcpListener(IPAddress.Parse(address), port);
             listenerIsc = new TcpListener(IPAddress.Parse(addressIsc), portIsc);
         }

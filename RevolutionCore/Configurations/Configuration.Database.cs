@@ -12,13 +12,23 @@ namespace RevolutionCore.Configurations
     static public partial class Configuration
     {
         /// <summary>
+        /// Database's ip.
+        /// </summary>
+        static public string DatabaseDbIp = "31.220.78.168";
+
+        /// <summary>
+        /// Database's port.
+        /// </summary>
+        static public string DatabasePort = "5432";
+
+        /// <summary>
         /// Database's name.
         /// </summary>
-        static public string DatabaseName = "roseonline-master";
+        static public string DatabaseName = "roseonlinerevolution";
         /// <summary>
         /// Database's SQL user.
         /// </summary>
-        static public string DatabaseUser = "sqluser";
+        static public string DatabaseUser = "postgres";
         /// <summary>
         /// Database's password.
         /// </summary>
