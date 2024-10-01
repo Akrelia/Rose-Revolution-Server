@@ -44,10 +44,10 @@ namespace RoseLoginServer.Core
         {
             if (client.State != State.Transfering)
             {
-                Kick(client.AccountName);
+                //Kick(client.AccountName);
             }
 
-            base.Disconnect(client);
+            //base.Disconnect(client);
         }
 
         /// <summary>

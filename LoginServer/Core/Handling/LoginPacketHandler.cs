@@ -30,7 +30,7 @@ namespace RoseLoginServer.Core.Handling
         /// </summary>
         public override void Initialize()
         {
-         Handlings.Add(0x10, TestReply);
+            Handlings.Add(0x10, HandleLogin);
         }
     }
 }

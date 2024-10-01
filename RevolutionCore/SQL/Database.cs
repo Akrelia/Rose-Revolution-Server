@@ -5,6 +5,7 @@ using Npgsql;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dapper;
 
 namespace RevolutionCore.SQL
 {
@@ -51,6 +52,58 @@ namespace RevolutionCore.SQL
 
 
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Close the database connection.
+        /// </summary>
+        public void Close()
+        {
+            if (connection != null && connection.State != System.Data.ConnectionState.Closed)
+            {
+                connection.Close();
+            }
+        }
+
+        /// <summary>
+        /// Returns objects found in db.
+        /// </summary>
+        /// <typeparam name="T">The type of the result object.</typeparam>
+        /// <param name="query">SQL query.</param>
+        /// <param name="parameters">Query parameters (optional).</param>
+        /// <returns>List of T (the result set).</returns>
+        public async Task<IEnumerable<T>> QueryAsync<T>(string query, object parameters = null)
+        {
+            try
+            {
+                return await connection.QueryAsync<T>(query, parameters); // Utilise la version asynchrone de Dapper
+            }
+            catch (Exception ex)
+            {
+                Logger.LogFatalError($"QueryAsync failed: {ex.Message}");
+                return Enumerable.Empty<T>(); // Retourne une liste vide si une erreur se produit
+            }
+        }
+
+        /// <summary>
+        /// Returns first object found in db
+        /// </summary>
+        /// <typeparam name="T">The type of the result object.</typeparam>
+        /// <param name="query">SQL query.</param>
+        /// <param name="parameters">Query parameters (optional).</param>
+        /// <returns>List of T (the result set).</returns>
+        public async Task<T> QuerySingleOrDefaultAsync<T>(string query, object parameters = null)
+        {
+            try
+            {
+                var result = await connection.QueryAsync<T>(query, parameters);
+                return result.FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogFatalError($"QuerySingleOrDefaultAsync failed: {ex.Message}");
+                return default;
             }
         }
     }

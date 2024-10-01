@@ -32,6 +32,6 @@ namespace RevolutionCore.Configurations
         /// <summary>
         /// Database's password.
         /// </summary>
-        static public string DatabasePassword = "password";
+        static public string DatabasePassword = "P4ssw0rd-th4t-!5-H4rd-T0_f!nD$";
     }
 }

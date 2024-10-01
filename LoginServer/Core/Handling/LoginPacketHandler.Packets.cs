@@ -13,15 +13,28 @@ namespace RoseLoginServer.Core.Handling
     public partial class LoginPacketHandler
     {
         /// <summary>
-        /// Test packet.
+        /// Login Successfull.
         /// </summary>
         /// <returns>Packet.</returns>
-        public Packet TestPacket(int level)
+        public Packet LoginSuccessfullPacket()
         {
             Packet packet = new Packet();
 
             packet.Start(0x11);
-            packet.Add(level);
+
+            return packet;
+        }
+
+        /// <summary>
+        /// Login Failed.
+        /// </summary>
+        /// <returns>Packet.</returns>
+        public Packet LoginFailedPacket(string error)
+        {
+            Packet packet = new Packet();
+
+            packet.Start(0x12);
+            packet.Add(error);
 
             return packet;
         }
