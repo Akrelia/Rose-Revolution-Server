@@ -49,6 +49,7 @@
     <Compile Include="Core\LoginClient.cs" />
     <Compile Include="Core\LoginServer.cs" />
     <Compile Include="Core\RoseAccount.cs" />
+    <Compile Include="Core\Services\dbAccountService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
