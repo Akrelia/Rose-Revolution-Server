@@ -105,11 +105,5 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\RevolutionCore\RevolutionCore.csproj">
-      <Project>{BE96CED8-3F65-45A2-A41F-CCDEEFD88DE8}</Project>
-      <Name>RevolutionCore</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
