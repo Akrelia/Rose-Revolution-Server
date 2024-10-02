@@ -739,7 +739,7 @@ namespace RevolutionCore.Networking
         }
 
         /// <summary>
-        /// Get the command of the packet.
+        /// Get the size of the packet.
         /// </summary>
         public ushort Size
         {
