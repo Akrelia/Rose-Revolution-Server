@@ -43,11 +43,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\GameClient.cs" />
+    <Compile Include="Core\GameServer.cs" />
+    <Compile Include="Core\Handling\GamePacketHandler.cs" />
+    <Compile Include="Core\Handling\GamePacketHandler.GameClient.cs" />
+    <Compile Include="Core\Handling\GamePacketHandler.Packets.cs" />
+    <Compile Include="Core\Handling\GamePacketHandler.RoseServer.cs" />
+    <Compile Include="Data\Clan.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RevolutionCore\RevolutionCore.csproj">
+      <Project>{BE96CED8-3F65-45A2-A41F-CCDEEFD88DE8}</Project>
+      <Name>RevolutionCore</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
