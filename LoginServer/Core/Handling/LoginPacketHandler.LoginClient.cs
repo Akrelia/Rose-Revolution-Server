@@ -36,8 +36,6 @@ namespace RoseLoginServer.Core.Handling
                 dbAccountService accountService = new dbAccountService(database);
                 var user = await accountService.GetUserAsync(username);
 
-                Console.WriteLine($"Login : {user.Username}, Password : {user.Password}, Salt : {user.Salt}");
-
                 if (user == null)
                 {
                     await SendPacket(LoginFailedPacket("Something went wrong, could not login."), client);
