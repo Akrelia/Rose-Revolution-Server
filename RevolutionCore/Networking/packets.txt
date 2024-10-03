@@ -1,0 +1,7 @@
+Packet used :
+
+0x10 = login request
+0x11 = login success
+0x12 = login failed
+0x13 = game server request
+0x14 = game server sent to client

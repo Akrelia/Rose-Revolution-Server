@@ -29,7 +29,8 @@ namespace RoseGameServer.Core.Handling
         /// </summary>
         public override void Initialize()
         {
-           // Handlings.Add(Commands.CreateCharacter, CreateCharacter);
+           Handlings.Add(0x13, GetGameServer);
+           Handlings.Add(0x15, GetChannels);
         }
     }
 }

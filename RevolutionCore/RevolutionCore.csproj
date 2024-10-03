@@ -116,5 +116,8 @@
   <ItemGroup>
     <Compile Include="Configurations\Configuration.GameServer.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Networking\packets.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

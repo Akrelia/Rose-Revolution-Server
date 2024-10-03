@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RevolutionCore.Networking;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,15 @@ namespace RoseGameServer.Core.Handling
     /// </summary>
     public partial class GamePacketHandler
     {
-        // Handle Packets from GameClient here
+        public async Task GetGameServer(GameClient client, Packet packet)
+        {
+            await SendPacket(SendGameServer(), client);
+        }
+
+        public async Task GetChannels(GameClient client, Packet packet)
+        {
+            Console.WriteLine("received channel packets");
+            await SendPacket(SendChannels(), client);
+        }
     }
 }

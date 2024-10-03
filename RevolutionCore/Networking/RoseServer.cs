@@ -149,7 +149,8 @@ namespace RevolutionCore.Networking
 
                                     if (clients[i].ConnectAttempts >= 10)
                                     {
-                                        Disconnect(clients[i]);
+                                        // Removed this for test purpose, uncomment it when release or game server is finished
+                                        //Disconnect(clients[i]);
                                     }
                                 }
 

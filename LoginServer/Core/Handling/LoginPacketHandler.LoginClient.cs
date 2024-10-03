@@ -83,7 +83,6 @@ namespace RoseLoginServer.Core.Handling
         public bool VerifyPassword(string password, string hashedPassword , string salt)
         {
             string hashedInputPassword = HashPassword(password, salt);
-            Console.WriteLine($"hashedInputPassword : {hashedInputPassword}, hashed : {hashedPassword}");
             return hashedPassword.Equals(hashedInputPassword, StringComparison.OrdinalIgnoreCase);
         }
     }

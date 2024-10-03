@@ -24,7 +24,7 @@ namespace RevolutionCore.SQL
         /// <param name="password">Password.</param>
         public Database(string dbip, string port, string database, string user, string password)
         {
-            Logger.LogImportantMessage("Db infos :", $"{dbip}, {port}, {database}, {user}, {password}");
+            //Logger.LogImportantMessage("Db infos :", $"{dbip}, {port}, {database}, {user}, {password}");
             string connectionString = $"Host={dbip};Port={port};Database={database};Username={user};Password={password};SSL Mode=Prefer;Trust Server Certificate=True;";
 
             connection = new NpgsqlConnection(connectionString);

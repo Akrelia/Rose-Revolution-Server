@@ -19,7 +19,7 @@ namespace RevolutionCore.Configurations
         /// <summary>
         /// Database's port.
         /// </summary>
-        static public string DatabasePort = "5432";
+        static public string DatabasePort = "5433";
 
         /// <summary>
         /// Database's name.
