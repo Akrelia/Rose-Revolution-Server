@@ -1,11 +1,11 @@
-﻿using RevolutionCore.Networking;
+﻿using RevolutionShared.Networking.Packets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RevolutionCore.Utils
+namespace RevolutionShared.Utils
 {
     /// <summary>
     /// Tools.
@@ -16,6 +16,47 @@ namespace RevolutionCore.Utils
         /// Our random.
         /// </summary>
         public static Random Random = new Random();
+
+        /// <summary>
+        /// Display a packet in a formated string.
+        /// </summary>
+        /// <param name="packet">Packet.</param>
+        /// <returns>String format.</returns>
+        public static string GetPacketString(IPacket packet)
+        {
+            string str = "";
+
+            for (int i = 0; i < packet.Buffer.Length; i++)
+            {
+                str += packet.Buffer[i].ToString("X2") + " ";
+            }
+
+            return str;
+        }
+
+        /// <summary>
+        /// Convert two bytes in to a short.
+        /// </summary>
+        /// <param name="A">First byte.</param>
+        /// <param name="B">Second byte.</param>
+        /// <returns></returns>
+        public static short Convert(byte A, byte B)
+        {
+            return (short)((B << 8) + A);
+        }
+
+        /// <summary>
+        /// Convert two bytes in to a short.
+        /// </summary>
+        /// <param name="A">First byte.</param>
+        /// <param name="B">Second byte.</param>
+        /// <param name="C">Third byte.</param>
+        /// <param name="D">Fourth byte.</param>
+        /// <returns></returns>
+        public static int Convert(byte A, byte B, byte C, byte D)
+        {
+            return (D << 24) + (C << 16) + (B << 8) + A;
+        }
 
         /// <summary>
         /// Check the possible duplicates of a list of props.

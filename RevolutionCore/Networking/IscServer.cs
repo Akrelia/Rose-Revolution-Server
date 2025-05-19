@@ -35,28 +35,6 @@ namespace RevolutionCore.Networking
         }
 
         /// <summary>
-        /// Update the server.
-        /// </summary>
-        /// <returns>Task.</returns>
-        public async Task<Packet> UpdateAsync()
-        {
-            var stream = tcpClient.GetStream();
-
-            if (stream.DataAvailable)
-            {
-                byte[] buffer = new byte[Packet.BufferSize];
-
-                await stream.ReadAsync(buffer, 0, buffer.Length);
-
-                Packet packet = new Packet(buffer);
-
-                return packet;
-            }
-
-            return null;
-        }
-
-        /// <summary>
         /// Get or set if the server is active.
         /// </summary>
         public bool IsActive

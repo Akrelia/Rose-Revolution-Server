@@ -20,10 +20,6 @@ namespace RevolutionCore.Networking
     public abstract class RoseServer<T, P> where T : RoseClient, new() where P : PacketHandler<T>
     {
         /// <summary>
-        /// IsRunning flag.
-        /// </summary>
-        protected bool isRunning;
-        /// <summary>
         /// Database instance.
         /// </summary>
         protected Database database;
@@ -31,10 +27,6 @@ namespace RevolutionCore.Networking
         /// Tcp listener for clients.
         /// </summary>
         protected TcpListener listener;
-        /// <summary>
-        /// Tcp listener for servers.
-        /// </summary>
-        protected TcpListener listenerIsc;
         /// <summary>
         /// Token for task cancelling.
         /// </summary>
@@ -55,6 +47,10 @@ namespace RevolutionCore.Networking
         /// List of servers.
         /// </summary>
         protected List<IscServer> servers;
+        /// <summary>
+        /// User tasks.
+        /// </summary>
+        protected Dictionary<Guid, Task> userTasks = new Dictionary<Guid, Task>();
 
         /// <summary>
         /// Constructor.
@@ -67,9 +63,23 @@ namespace RevolutionCore.Networking
         {
             clients = new List<T>();
             servers = new List<IscServer>();
-            database = new Database(Configuration.DatabaseDbIp, Configuration.DatabasePort, Configuration.DatabaseName, Configuration.DatabaseUser, Configuration.DatabasePassword);
+           // database = new Database(Configuration.DatabaseDbIp, Configuration.DatabasePort, Configuration.DatabaseName, Configuration.DatabaseUser, Configuration.DatabasePassword);
             listener = new TcpListener(IPAddress.Parse(address), port);
-            listenerIsc = new TcpListener(IPAddress.Parse(addressIsc), portIsc);
+            tokenSource = new CancellationTokenSource();
+        }
+
+        /// <summary>
+        /// Start.
+        /// </summary>
+        public async Task StartAsync()
+        {
+            listener.Start();
+
+            Logger.LogImportantMessage("Sandbox Server starting ...");
+
+            _ = ListenAsync(tokenSource.Token);
+
+            await Task.WhenAll(ListenAsync(tokenSource.Token));
         }
 
         /// <summary>
@@ -77,36 +87,34 @@ namespace RevolutionCore.Networking
         /// </summary>
         public virtual void Start()
         {
-            isRunning = true;
             tokenSource = CancellationTokenSource.CreateLinkedTokenSource(new CancellationToken());
             token = tokenSource.Token;
             listener.Start();
-            listenerIsc.Start();
-            database.Open();
+          //  database.Open();
         }
 
         /// <summary>
-        /// Listen to the client
+        /// Listen to incoming new tcp client.
         /// </summary>
-        public async Task ListenAsync()
+        /// <returns>Task.</returns>
+        public async Task ListenAsync(CancellationToken cancelToken)
         {
             try
             {
-                await Task.Run(async () =>
+                while (!cancelToken.IsCancellationRequested)
                 {
-                    while (true)
-                    {
-                        var tcpClient = await listener.AcceptTcpClientAsync().ConfigureAwait(false);
+                    var tcpClient = await listener.AcceptTcpClientAsync().ConfigureAwait(false);
 
-                        Logger.LogImportantMessage("CONNECTION", $"Client connected from {tcpClient.Client.RemoteEndPoint}");
+                    T client = new T() { TcpClient = tcpClient }; // C# can't have generic constructor with parameters
 
-                        T client = new T() { TcpClient = tcpClient }; // C# can't have generic constructor with parameters
+                    Logger.LogImportantMessage("CONNECTION", $"Client ({client.GUID}) connected from {tcpClient.Client.RemoteEndPoint}");
 
-                        clients.Add(client);
+                    clients.Add(client);
 
-                        await Task.Delay(Configuration.ServerRefreshRate);
-                    }
-                });
+                    userTasks[client.GUID] = UpdateUserAsync(client);
+
+                    await Task.Delay(10, cancelToken);
+                }
             }
 
             catch (Exception ex)
@@ -117,141 +125,68 @@ namespace RevolutionCore.Networking
             finally
             {
                 listener.Stop();
-                isRunning = false;
             }
         }
 
         /// <summary>
-        /// Update the clients.
+        /// Update the user.
         /// </summary>
-        public async Task UpdateAsync()
+        /// <param name="client">Client to update.</param>
+        /// <returns>Task.</returns>
+        public async Task UpdateUserAsync(T client)
         {
             try
             {
-                await Task.Run(async () =>
+                while (client.TcpClient.Connected)
                 {
-                    while (true)
+                    var packet = await packetHandler.GetPacketAsync(client.TcpClient, tokenSource.Token);
+
+                    if (packet != null)
                     {
-                        for (int i = 0; i < clients.Count; i++)
+                        await packetHandler.HandlePacket(packet, client);
+
+                        client.PacketCount++;
+                        client.RefreshActivity();
+
+                        if (client.PacketCount >= Configuration.PacketsPerSecond)
                         {
-                            var packet = await clients[i].UpdateAsync<T>();
-
-                            if (packet != null)
-                            {
-                                await packetHandler.Handle(packet, clients[i]);
-                            }
-
-                            else
-                            {
-                                if (clients[i].TcpClient.Client.Poll(50, SelectMode.SelectRead))
-                                {
-                                    clients[i].ConnectAttempts++;
-
-                                    if (clients[i].ConnectAttempts >= 10)
-                                    {
-                                        // Removed this for test purpose, uncomment it when release or game server is finished
-                                        //Disconnect(clients[i]);
-                                    }
-                                }
-
-                                else
-                                {
-                                    if (clients[i].ConnectAttempts > 0)
-                                    {
-                                        clients[i].ConnectAttempts--;
-                                    }
-                                }
-                            }
+                            DisconnectSpammer(client);
                         }
 
-                        await Task.Delay(Configuration.ServerRefreshRate);
-                    }
-                });
-            }
-
-            catch (Exception ex)
-            {
-                Logger.LogFatalError($"Server crashed : {ex.Message}");
-            }
-
-            finally
-            {
-                listener.Stop();
-                isRunning = false;
-            }
-        }
-
-        /// <summary>
-        /// Listen to other servers.
-        /// </summary>
-        public async Task ListenIscAsync()
-        {
-            try
-            {
-                await Task.Run(async () =>
-                {
-                    while (true)
-                    {
-                        var tcpClient = await listenerIsc.AcceptTcpClientAsync().ConfigureAwait(false);
-
-                        Logger.LogImportantMessage("CONNECTION", $"Server connected from {tcpClient.Client.RemoteEndPoint}");
-
-                        IscServer server = new IscServer(servers.Count() + 1, tcpClient);
-
-                        servers.Add(server);
-
-                        await Task.Delay(Configuration.ServerRefreshRate);
-                    }
-                });
-            }
-
-            catch (Exception ex)
-            {
-                Logger.LogFatalError($"Server crashed : {ex.Message}");
-            }
-
-            finally
-            {
-                listenerIsc.Stop();
-                isRunning = false;
-            }
-        }
-
-        /// <summary>
-        /// Update the servers.
-        /// </summary>
-        public async Task UpdateIscAsync()
-        {
-            try
-            {
-                await Task.Run(async () =>
-                {
-                    while (true)
-                    {
-                        for (int i = 0; i < servers.Count; i++)
+                        else
                         {
-                            var packet = await servers[i].UpdateAsync();
-
-                            if (packet != null)
+                            if (client.LastSpamCheck + Configuration.CheckPacketRate <= DateTime.Now)
                             {
-                                await packetHandler.HandleIsc(packet, servers[i]);
+                                client.ResetPacketLimitation();
                             }
                         }
-
-                        await Task.Delay(Configuration.ServerRefreshRate);
                     }
-                });
+
+                    else
+                    {
+                        if (client.LastActivity + Configuration.PingDuration <= DateTime.Now)
+                        {
+                            if (!client.Pinged)
+                            {
+                                await packetHandler.PingClient(client);
+                            }
+                        }
+                    }
+
+                    await Task.Delay(20);
+                }
             }
 
             catch (Exception ex)
             {
-                Logger.LogFatalError($"Server crashed : {ex.Message}");
+                Console.WriteLine($"Error while updating user {client.GUID}: {ex.Message}");
             }
 
             finally
             {
-                listenerIsc.Stop();
-                isRunning = false;
+                Disconnect(client);
+
+                await Task.CompletedTask;
             }
         }
 
@@ -270,22 +205,23 @@ namespace RevolutionCore.Networking
         }
 
         /// <summary>
+        /// A spammer is detected.
+        /// </summary>
+        /// <param name="client">User.</param>
+        public virtual void DisconnectSpammer(T client)
+        {
+            Logger.LogWarning($"User {client} reached the packet limit and will be disconnected");
+
+            Disconnect(client);
+        }
+
+        /// <summary>
         /// Stop the server.
         /// </summary>
         public void Stop()
         {
             tokenSource?.Cancel();
             listener.Stop();
-
-            isRunning = false;
-        }
-
-        /// <summary>
-        /// Get if the server is running.
-        /// </summary>
-        public bool IsRunning
-        {
-            get { return isRunning; }
         }
 
         /// <summary>

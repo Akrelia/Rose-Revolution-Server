@@ -39,7 +39,7 @@ namespace RoseGameServer
 
             Logger.LogImportantMessage("STARTING", "Server started and listening.");
 
-            await Task.WhenAll(server.ListenAsync(), server.UpdateAsync(), server.ListenIscAsync(), server.UpdateIscAsync());
+           // await Task.WhenAll(server.ListenAsync(), server.UpdateAsync(), server.ListenIscAsync(), server.UpdateIscAsync());
         }
 
         /// <summary>

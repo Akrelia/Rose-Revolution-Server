@@ -78,13 +78,6 @@ namespace RoseGameServer.Core
         /// <returns>Client if found.</returns>
         public GameClient GetClient(int id)
         {
-            for (int i = 0; i < clients.Count; i++)
-            {
-                if (clients[i].Id == id)
-                {
-                    return clients[i];
-                }
-            }
 
             return null;
         }

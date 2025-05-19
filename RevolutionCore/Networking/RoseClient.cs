@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using RevolutionCore.Utils;
+using System;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RevolutionCore.Networking
 {
@@ -13,9 +10,13 @@ namespace RevolutionCore.Networking
     public abstract class RoseClient
     {
         /// <summary>
-        /// Id.
+        /// Guid.
         /// </summary>
-        protected int id;
+        protected Guid guid;
+        /// <summary>
+        /// Pinged.
+        /// </summary>
+        protected bool pinged;
         /// <summary>
         /// Right.
         /// </summary>
@@ -29,56 +30,68 @@ namespace RevolutionCore.Networking
         /// </summary>
         protected string accountName;
         /// <summary>
+        /// Packet count.
+        /// </summary>
+        protected int packetCount;
+        /// <summary>
         /// Tcp client.
         /// </summary>
         protected TcpClient tcpClient;
+        /// <summary>
+        /// Last activity.
+        /// </summary>
+        protected DateTime lastActivity;
+        /// <summary>
+        /// Last spam check.
+        /// </summary>
+        protected DateTime lastSpamCheck;
 
         /// <summary>
         /// Parameterless constructor.
         /// </summary>
         public RoseClient()
         {
+            guid = Guid.NewGuid();
 
+            RefreshActivity();
         }
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="tcpClient">Tcp client.</param>
-        public RoseClient(TcpClient tcpClient)
+        public RoseClient(TcpClient tcpClient) : base()
         {
             this.tcpClient = tcpClient;
         }
 
         /// <summary>
-        /// Update the client.
+        /// Refresh the last activity.
         /// </summary>
-        /// <returns>Task.</returns>
-        public async Task<Packet> UpdateAsync<T>() where T : RoseClient
+        public void RefreshActivity()
         {
-            var stream = tcpClient.GetStream();
+            pinged = false;
 
-            if (stream.DataAvailable)
-            {
-                byte[] buffer = new byte[Packet.BufferSize];
-
-                await stream.ReadAsync(buffer, 0, buffer.Length);
-
-                Packet packet = new Packet(buffer);
-
-                return packet;
-            }
-
-            return null;
+            lastActivity = DateTime.Now;
         }
 
         /// <summary>
-        /// Get or set the id of the client.
+        /// Reset the packet limitation.
         /// </summary>
-        public int Id
+        public void ResetPacketLimitation()
         {
-            get { return id; }
-            set { id = value; }
+            packetCount = 0;
+
+            lastSpamCheck = DateTime.Now;
+        }
+
+        /// <summary>
+        /// Get or set the GUID of the client.
+        /// </summary>
+        public Guid GUID
+        {
+            get { return guid; }
+            set { guid = value; }
         }
 
         /// <summary>
@@ -88,6 +101,15 @@ namespace RevolutionCore.Networking
         {
             get { return connectAttempts; }
             set { connectAttempts = value; }
+        }
+
+        /// <summary>
+        /// Get or set if the user is under a ping.
+        /// </summary>
+        public bool Pinged
+        {
+            get { return pinged; }
+            set { pinged = value; }
         }
 
         /// <summary>
@@ -114,6 +136,40 @@ namespace RevolutionCore.Networking
         public string IP
         {
             get { return tcpClient.Client.RemoteEndPoint.ToString(); }
+        }
+
+        /// <summary>
+        /// Get the last spam check.
+        /// </summary>
+        public DateTime LastSpamCheck
+        {
+            get { return lastSpamCheck; }
+        }
+
+        /// <summary>
+        /// Get the last activity.
+        /// </summary>
+        public DateTime LastActivity
+        {
+            get { return lastActivity; }
+        }
+
+        /// <summary>
+        /// Get or set the packet count.
+        /// </summary>
+        public int PacketCount
+        {
+            get { return packetCount; }
+            set { packetCount = value; }
+        }
+
+        /// <summary>
+        /// String format.
+        /// </summary>
+        /// <returns>Object in string format.</returns>
+        public override string ToString()
+        {
+            return $"({GUID})";
         }
 
         /// <summary>

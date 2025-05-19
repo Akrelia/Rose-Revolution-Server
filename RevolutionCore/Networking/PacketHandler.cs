@@ -1,10 +1,18 @@
 ﻿using RevolutionCore.Configurations;
 using RevolutionCore.SQL;
 using RevolutionCore.Utils;
+using RevolutionShared.Attributes;
+using RevolutionShared.Networking.Packets;
+using RevolutionShared.Packets;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RevolutionCore.Networking
@@ -14,6 +22,8 @@ namespace RevolutionCore.Networking
     /// </summary>
     public abstract partial class PacketHandler<T> where T : RoseClient
     {
+        Dictionary<int, Func<T, PacketIn, Task>> actions;
+
         /// <summary>
         /// Database instance.
         /// </summary>
@@ -26,78 +36,229 @@ namespace RevolutionCore.Networking
         public PacketHandler(Database database)
         {
             this.database = database;
+            this.actions = new Dictionary<int, Func<T, PacketIn, Task>>();
 
-            Initialize();
+            LoadAsyncActions();
+
+            Logger.LogDebug("Actions : " + actions.Count);
+        }
+
+        /// <summary>
+        /// Get packet from a context.
+        /// </summary>
+        /// <param name="context">Context.</param>
+        /// <returns>Packet.</returns>
+        public async Task<PacketIn> GetPacketAsync(TcpClient client, CancellationToken token)
+        {
+            var header = new byte[6];
+            var stream = client.GetStream();
+
+            if (stream.DataAvailable)
+            {
+                int bytesRead = await stream.ReadAsync(header, 0, PacketIn.HeaderLength, token);
+
+                if (bytesRead != 0)
+                {
+                    var size = BitConverter.ToInt32(header, 0);
+
+                    if (size <= Configuration.MaximumPacketSize)
+                    {
+                        byte[] buffer = new byte[size + PacketIn.HeaderLength];
+
+                        buffer[0] = header[0];
+                        buffer[1] = header[1];
+                        buffer[2] = header[2];
+                        buffer[3] = header[3];
+                        buffer[4] = header[4];
+                        buffer[5] = header[5];
+
+                        if (size != 0)
+                        {
+                            await stream.ReadAsync(buffer, PacketIn.HeaderLength, size, token);
+                        }
+
+                        PacketIn packet = new PacketIn(buffer);
+
+                        Logger.LogDebug("PACKET IN : " + packet.StringFormat);
+
+                        return packet;
+                    }
+
+                    else
+                    {
+                        Logger.LogWarning($"{((IPEndPoint)client.Client.RemoteEndPoint).Address} is trying to send a large packet !");
+
+                        return null;
+                    }
+                }
+
+                else
+                {
+                    Logger.LogWarning($"{((IPEndPoint)client.Client.RemoteEndPoint).Address} is not connected anymore");
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Load async actions.
+        /// </summary>
+        public void LoadAsyncActions()
+        {
+            var type = this.GetType();
+
+            foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
+            {
+                PacketCommand attribute = method.GetCustomAttribute<PacketCommand>();
+
+                if (attribute != null)
+                {
+                    if (method.ReturnType == typeof(Task))
+                    {
+                        ParameterInfo[] parameters = method.GetParameters();
+
+                        if (parameters.Length == 2 && parameters[1].ParameterType == typeof(PacketIn) && parameters[0].ParameterType == typeof(T))
+                        {
+                            var instance = this;
+
+                            Func<T, PacketIn, Task> action = async (T user, PacketIn packet) => await (Task)method.Invoke(instance, new object[] { user, packet });
+
+                            if (!actions.ContainsKey(attribute.Value))
+                            {
+                                actions[attribute.Value] = action;
+                            }
+
+                            else
+                            {
+                                Console.WriteLine($"Warning: Duplicate key {attribute.Value}. Method {method.Name} was skipped.");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Method {method.Name} skipped: Incorrect parameter type or count.");
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
         /// Handle the packet.
         /// </summary>
-        /// <param name="packet">Packet to handle.</param>
+        /// <param name="packet">Packet.</param>
         /// <param name="client">Client.</param>
-        public async Task Handle(Packet packet, T client)
+        /// <returns>Task.</returns>
+        public async Task HandlePacket(PacketIn packet, T client)
         {
-            if (Handlings.ContainsKey(packet.Command))
+            if (actions.ContainsKey(packet.Command))
             {
-                await Handlings[packet.Command](client, packet);
+                await actions[packet.Command](client, packet);
             }
 
             else
             {
-                Logger.LogWarning($"Received unknown packet command : {packet.CommandString} - from {client.IP}");
-            }
-        }
-
-        /// <summary>
-        /// Handle the packet.
-        /// </summary>
-        /// <param name="packet">Packet to handle.</param>
-        /// <param name="server">Client.</param>
-        public async Task HandleIsc(Packet packet, IscServer server)
-        {
-            if (IscHandlings.ContainsKey(packet.Command))
-            {
-                await IscHandlings[packet.Command](server, packet);
-            }
-
-            else
-            {
-                Logger.LogWarning($"Received unknown isc packet command : {packet.CommandString} (size: {packet.Size}) - from {server.Name}");
+                Logger.LogWarning($"There is no packet action for the following command : {packet.Command} ({packet.CommandString})");
             }
         }
 
         /// <summary>
         /// Send a packet.
         /// </summary>
-        /// <param name="packet">Packet to send.</param>
-        /// <param name="client">Client to send packet.</param>
+        /// <param name="stream">Stream.</param>
+        /// <param name="packet">Packet.</param>
         /// <returns>Task.</returns>
-        public async Task SendPacket(Packet packet, RoseClient client)
+        public virtual async Task SendPacket(Stream stream, PacketOut packet)
         {
-            Logger.LogMessage(Configuration.Verbose, "PACKET-OUT", packet.ToString());
+            Logger.LogDebug("PACKET OUT " + packet.StringFormat);
 
-            var size = packet.Size;
+            await stream.WriteAsync(packet.Buffer, 0, packet.Buffer.Length);
 
-      //      packet.EncodeClient();
-
-            await client.TcpClient.GetStream().WriteAsync(packet.Buffer, 0, size);
+            await stream.FlushAsync();
         }
 
         /// <summary>
         /// Send a packet.
         /// </summary>
-        /// <param name="packet">Packet to send.</param>
-        /// <param name="roseServer">Rose server to send packet.</param>
+        /// <param name="client">Client.</param>
+        /// <param name="packet">Packet.</param>
         /// <returns>Task.</returns>
-        public async Task SendIscPacket(Packet packet, IscServer roseServer)
+        public virtual async Task SendPacket(T client, PacketOut packet)
         {
-            Logger.LogMessage(Configuration.Verbose, "S-PACKET-OUT", packet.ToString());
-
-            var size = packet.Size;
-
-        //    packet.EncodeServer();
-
-            await roseServer.TcpClient.GetStream().WriteAsync(packet.Buffer, 0, size);
+            await SendPacket(client.TcpClient.GetStream(), packet);
         }
+
+        /// <summary>
+        /// Send a packet.
+        /// </summary>
+        /// <param name="tcpClient">TCP Client.</param>
+        /// <param name="packet">Packet.</param>
+        /// <returns>Task.</returns>
+        public virtual async Task SendPacket(TcpClient tcpClient, PacketOut packet)
+        {
+            await SendPacket(tcpClient.GetStream(), packet);
+        }
+
+        /// <summary>
+        /// When the player ping the server.
+        /// </summary>
+        /// <param name="client">Client.</param>
+        /// <param name="packet">Packet.</param>
+        /// <returns>Task.</returns>
+        [PacketCommand(ClientCommands.Ping)]
+        public async Task ActionPing(T client, PacketIn packet)
+        {
+            await PongClient(client.TcpClient);
+        }
+
+        /// <summary>
+        /// Ping the client.
+        /// </summary>
+        /// <param name="client">Client.</param>
+        /// <returns>Task.</returns>
+        public async Task PingClient(T client)
+        {
+            client.Pinged = true;
+
+            await SendPacket(client, Packets.Ping());
+        }
+
+        /// <summary>
+        /// Pong the client.
+        /// </summary>
+        /// <param name="client">Client.</param>
+        /// <returns>Task.</returns>
+        public async Task PongClient(TcpClient client)
+        {
+            await SendPacket(client, Packets.Pong());
+        }
+    }
+}
+
+/// <summary>
+/// General packet.
+/// </summary>
+public static class Packets
+{
+    /// <summary>
+    /// Ping Packet.
+    /// </summary>
+    /// <returns>Packet.</returns>
+    public static PacketOut Ping()
+    {
+        PacketOut packet = new PacketOut(ServerCommands.Ping);
+
+        return packet;
+    }
+
+    /// <summary>
+    /// Pong Packet.
+    /// </summary>
+    /// <returns>Packet.</returns>
+    public static PacketOut Pong()
+    {
+        PacketOut packet = new PacketOut(ServerCommands.Pong);
+
+        return packet;
     }
 }

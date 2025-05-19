@@ -35,5 +35,21 @@ namespace RevolutionCore.Configurations
         /// Username maximum length.
         /// </summary>
         public static int UsernameMaximumLength = 16;
+        /// <summary>
+        /// Maximum packet size.
+        /// </summary>
+        public static int MaximumPacketSize = 200 * 1024;
+        /// <summary>
+        /// Packets per second.
+        /// </summary>
+        public static int PacketsPerSecond = 20;
+        /// <summary>
+        /// Ping duration.
+        /// </summary>
+        public static TimeSpan PingDuration = TimeSpan.FromSeconds(10);
+        /// <summary>
+        /// Check packet rate.
+        /// </summary>
+        public static TimeSpan CheckPacketRate = TimeSpan.FromSeconds(1);
     }
 }

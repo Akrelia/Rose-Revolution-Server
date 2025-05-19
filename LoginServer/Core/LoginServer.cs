@@ -26,15 +26,6 @@ namespace RoseLoginServer.Core
             packetHandler = new LoginPacketHandler(this, database);
         }
 
-        /// <summary>
-        /// Get a client by its id.
-        /// </summary>
-        /// <param name="id">Id.</param>
-        /// <returns>Client.</returns>
-        public LoginClient GetClient(int id)
-        {
-            return clients.FirstOrDefault(c => c.Id == id);
-        }
 
         /// <summary>
         /// Disconnect a client.

@@ -1,4 +1,5 @@
 ﻿using RevolutionCore.Networking;
+using RevolutionShared.Networking.Packets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,11 +17,9 @@ namespace RoseLoginServer.Core.Handling
         /// Login Successfull.
         /// </summary>
         /// <returns>Packet.</returns>
-        public Packet LoginSuccessfullPacket()
+        public PacketOut LoginSuccessfullPacket()
         {
-            Packet packet = new Packet();
-
-            packet.Start(0x11);
+            PacketOut packet = new PacketOut(0x11);
 
             return packet;
         }
@@ -29,11 +28,10 @@ namespace RoseLoginServer.Core.Handling
         /// Login Failed.
         /// </summary>
         /// <returns>Packet.</returns>
-        public Packet LoginFailedPacket(string error)
+        public PacketOut LoginFailedPacket(string error)
         {
-            Packet packet = new Packet();
+            PacketOut packet = new PacketOut(0x12);
 
-            packet.Start(0x12);
             packet.Add(error);
 
             return packet;

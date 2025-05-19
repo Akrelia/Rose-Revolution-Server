@@ -24,13 +24,5 @@ namespace RoseGameServer.Core.Handling
         {
             this.server = server;
         }
-        /// <summary>
-        /// Initialize the handlings.
-        /// </summary>
-        public override void Initialize()
-        {
-           Handlings.Add(0x13, GetGameServer);
-           Handlings.Add(0x15, GetChannels);
-        }
     }
 }

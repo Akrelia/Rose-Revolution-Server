@@ -24,13 +24,5 @@ namespace RoseLoginServer.Core.Handling
         {
             this.server = server;
         }
-
-        /// <summary>
-        /// Initialize the handlings.
-        /// </summary>
-        public override void Initialize()
-        {
-            Handlings.Add(0x10, HandleLogin);
-        }
     }
 }

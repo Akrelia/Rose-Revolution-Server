@@ -96,16 +96,16 @@
     <Compile Include="Configurations\Configuration.cs" />
     <Compile Include="Configurations\Configuration.Database.cs" />
     <Compile Include="Configurations\Configuration.LoginServer.cs" />
+    <Compile Include="Configurations\Configuration.SandboxServer.cs" />
     <Compile Include="Configurations\Configuration.WorldServer.cs" />
     <Compile Include="Networking\Channel.cs" />
     <Compile Include="Networking\IscServer.cs" />
-    <Compile Include="Networking\Packet.cs" />
     <Compile Include="Networking\PacketHandler.cs" />
-    <Compile Include="Networking\PacketHandler.Mappings.cs" />
     <Compile Include="Networking\RoseClient.cs" />
     <Compile Include="Networking\RoseServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SQL\Database.cs" />
+    <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Utils\Logger.cs" />
     <Compile Include="Utils\Tools.cs" />
   </ItemGroup>
@@ -117,7 +117,10 @@
     <Compile Include="Configurations\Configuration.GameServer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Networking\packets.txt" />
+    <ProjectReference Include="..\RevolutionShared\RevolutionShared.csproj">
+      <Project>{A252F218-42CF-48AB-A26A-94C38D07AEB2}</Project>
+      <Name>RevolutionShared</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

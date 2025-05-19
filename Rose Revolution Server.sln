@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoseWorldServer", "WorldSer
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevolutionCore", "RevolutionCore\RevolutionCore.csproj", "{BE96CED8-3F65-45A2-A41F-CCDEEFD88DE8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoseSandboxServer", "RoseSandboxServer\RoseSandboxServer.csproj", "{7B5D0EAE-30DD-47B6-B6DC-F4780184C897}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevolutionShared", "RevolutionShared\RevolutionShared.csproj", "{A252F218-42CF-48AB-A26A-94C38D07AEB2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{BE96CED8-3F65-45A2-A41F-CCDEEFD88DE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE96CED8-3F65-45A2-A41F-CCDEEFD88DE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE96CED8-3F65-45A2-A41F-CCDEEFD88DE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B5D0EAE-30DD-47B6-B6DC-F4780184C897}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B5D0EAE-30DD-47B6-B6DC-F4780184C897}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B5D0EAE-30DD-47B6-B6DC-F4780184C897}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B5D0EAE-30DD-47B6-B6DC-F4780184C897}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A252F218-42CF-48AB-A26A-94C38D07AEB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A252F218-42CF-48AB-A26A-94C38D07AEB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A252F218-42CF-48AB-A26A-94C38D07AEB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A252F218-42CF-48AB-A26A-94C38D07AEB2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

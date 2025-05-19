@@ -111,6 +111,10 @@
       <Project>{BE96CED8-3F65-45A2-A41F-CCDEEFD88DE8}</Project>
       <Name>RevolutionCore</Name>
     </ProjectReference>
+    <ProjectReference Include="..\RevolutionShared\RevolutionShared.csproj">
+      <Project>{A252F218-42CF-48AB-A26A-94C38D07AEB2}</Project>
+      <Name>RevolutionShared</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

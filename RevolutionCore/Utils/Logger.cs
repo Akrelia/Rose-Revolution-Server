@@ -46,6 +46,19 @@ namespace RevolutionCore.Utils
         /// <summary>
         /// Log an important message.
         /// </summary>
+        /// <param name="text">Content of the message.</param>
+        public static void LogImportantMessage(string text)
+        {
+            WriteTime();
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"{text}");
+            Console.ResetColor();
+        }
+
+        /// <summary>
+        /// Log an important message.
+        /// </summary>
         /// <param name="header">Header of the message.</param>
         /// <param name="text">Content of the message.</param>
         public static void LogImportantMessage(string header, string text)
@@ -53,7 +66,7 @@ namespace RevolutionCore.Utils
             WriteTime();
 
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"[{header}] {text}");
+            Console.WriteLine($"[{header}]{text}");
             Console.ResetColor();
         }
 
@@ -80,6 +93,19 @@ namespace RevolutionCore.Utils
 
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"[ERROR] {text}");
+            Console.ResetColor();
+        }
+
+        /// <summary>
+        /// Log a debug message.
+        /// </summary>
+        /// <param name="text">Content of the message.</param>
+        public static void LogDebug(string text)
+        {
+            WriteTime();
+
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.WriteLine($"[DEBUG] {text}");
             Console.ResetColor();
         }
 

@@ -1,4 +1,5 @@
 ﻿using RevolutionCore.Networking;
+using RevolutionShared.Networking.Packets;
 using System;
 using System.Security.Cryptography;
 using System.Text;
@@ -17,9 +18,9 @@ namespace RoseLoginServer.Core.Handling
         /// <param name="client">Client.</param>
         /// <param name="packet">Packet.</param>
         /// <returns>Task.</returns>
-        public async Task HandleLogin(LoginClient client, Packet packet)
+        public async Task HandleLogin(LoginClient client, PacketIn packet)
         {
-            ushort size = packet.Size;
+            /*ushort size = packet.Size;
             ushort command = packet.Command;
             byte[] dataBytes = packet.GetBytes(size - 4);
 
@@ -59,8 +60,9 @@ namespace RoseLoginServer.Core.Handling
             {
                 Console.WriteLine("Invalid chain format, ':' is missing.");
             }
-        }
+            */
 
+        }
     }
 
     public class Cryptography
