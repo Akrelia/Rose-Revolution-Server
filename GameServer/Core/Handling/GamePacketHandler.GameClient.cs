@@ -12,15 +12,6 @@ namespace RoseGameServer.Core.Handling
     /// </summary>
     public partial class GamePacketHandler
     {
-        public async Task GetGameServer(GameClient client, Packet packet)
-        {
-            await SendPacket(SendGameServer(), client);
-        }
-
-        public async Task GetChannels(GameClient client, Packet packet)
-        {
-            Console.WriteLine("received channel packets");
-            await SendPacket(SendChannels(), client);
-        }
+       
     }
 }
