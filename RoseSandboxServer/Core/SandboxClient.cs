@@ -14,6 +14,8 @@ namespace RoseSandboxServer
     /// </summary>
     public class SandboxClient : RoseClient
     {
+        string playerName;
+
         /// <summary>
         /// Parameterless Constructor.
         /// </summary>
@@ -26,6 +28,15 @@ namespace RoseSandboxServer
         /// </summary>
         public SandboxClient(TcpClient tcpClient) : base(tcpClient)
         {
+        }
+
+        /// <summary>
+        /// Get or the player name.
+        /// </summary>
+        public string PlayerName
+        {
+            get { return playerName; }
+            set { playerName = value; }
         }
     }
 }

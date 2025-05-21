@@ -23,5 +23,9 @@ namespace RevolutionCore.Configurations
         /// Server isc port.
         /// </summary>
         public static short SandboxServerPortIsc = 30010;
+        /// <summary>
+        /// MOTD.
+        /// </summary>
+        public static string MOTD = "Welcome to the Sandbox server of Rose Revolution !";
     }
 }
