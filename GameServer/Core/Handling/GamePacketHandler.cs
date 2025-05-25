@@ -13,7 +13,7 @@ namespace RoseGameServer.Core.Handling
     /// </summary>
     public partial class GamePacketHandler : PacketHandler<GameClient>
     {
-        readonly GameServer server;
+        GameServer server;
 
         /// <summary>
         /// Constructor.

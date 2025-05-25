@@ -15,6 +15,17 @@ namespace RoseSandboxServer
     public class SandboxClient : RoseClient
     {
         string playerName;
+        public byte gender;
+        public byte hair;
+        public byte face;
+        public int back;
+        public int body;
+        public int gloves;
+        public int shoes;
+        public int mask;
+        public int hat;
+        public int weapon;
+        public int subweapon;
 
         /// <summary>
         /// Parameterless Constructor.

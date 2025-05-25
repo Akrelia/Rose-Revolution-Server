@@ -20,9 +20,9 @@ namespace RevolutionCore.Networking
     /// <summary>
     /// A packet handler.
     /// </summary>
-    public abstract partial class PacketHandler<T> where T : RoseClient
+    public abstract partial class PacketHandler<T> where T : RoseClient 
     {
-        Dictionary<int, Func<T, PacketIn, Task>> actions;
+        protected Dictionary<int, Func<T, PacketIn, Task>> actions;
 
         /// <summary>
         /// Database instance.
@@ -161,104 +161,5 @@ namespace RevolutionCore.Networking
                 Logger.LogWarning($"There is no packet action for the following command : {packet.Command} ({packet.CommandString})");
             }
         }
-
-        /// <summary>
-        /// Send a packet.
-        /// </summary>
-        /// <param name="stream">Stream.</param>
-        /// <param name="packet">Packet.</param>
-        /// <returns>Task.</returns>
-        public virtual async Task SendPacket(Stream stream, PacketOut packet)
-        {
-            Logger.LogDebug("PACKET OUT " + packet.StringFormat);
-
-            await stream.WriteAsync(packet.Buffer, 0, packet.Buffer.Length);
-
-            await stream.FlushAsync();
-        }
-
-        /// <summary>
-        /// Send a packet.
-        /// </summary>
-        /// <param name="client">Client.</param>
-        /// <param name="packet">Packet.</param>
-        /// <returns>Task.</returns>
-        public virtual async Task SendPacket(T client, PacketOut packet)
-        {
-            await SendPacket(client.TcpClient.GetStream(), packet);
-        }
-
-        /// <summary>
-        /// Send a packet.
-        /// </summary>
-        /// <param name="tcpClient">TCP Client.</param>
-        /// <param name="packet">Packet.</param>
-        /// <returns>Task.</returns>
-        public virtual async Task SendPacket(TcpClient tcpClient, PacketOut packet)
-        {
-            await SendPacket(tcpClient.GetStream(), packet);
-        }
-
-        /// <summary>
-        /// When the player ping the server.
-        /// </summary>
-        /// <param name="client">Client.</param>
-        /// <param name="packet">Packet.</param>
-        /// <returns>Task.</returns>
-        [PacketCommand(ClientCommands.Ping)]
-        public async Task ActionPing(T client, PacketIn packet)
-        {
-            await PongClient(client.TcpClient);
-        }
-
-        /// <summary>
-        /// Ping the client.
-        /// </summary>
-        /// <param name="client">Client.</param>
-        /// <returns>Task.</returns>
-        public async Task PingClient(T client)
-        {
-            client.Pinged = true;
-
-            await SendPacket(client, Packets.Ping());
-        }
-
-        /// <summary>
-        /// Pong the client.
-        /// </summary>
-        /// <param name="client">Client.</param>
-        /// <returns>Task.</returns>
-        public async Task PongClient(TcpClient client)
-        {
-            await SendPacket(client, Packets.Pong());
-        }
-    }
-}
-
-/// <summary>
-/// General packet.
-/// </summary>
-public static class Packets
-{
-    /// <summary>
-    /// Ping Packet.
-    /// </summary>
-    /// <returns>Packet.</returns>
-    public static PacketOut Ping()
-    {
-        PacketOut packet = new PacketOut(ServerCommands.Ping);
-
-        return packet;
-    }
-
-    /// <summary>
-    /// Pong Packet.
-    /// </summary>
-    /// <returns>Packet.</returns>
-    public static PacketOut Pong()
-    {
-        PacketOut packet = new PacketOut(ServerCommands.Pong);
-
-        return packet;
     }
 }

@@ -1,8 +1,11 @@
 ﻿using RevolutionCore.Configurations;
 using RevolutionCore.SQL;
 using RevolutionCore.Utils;
+using RevolutionShared.Networking.Packets;
+using RevolutionShared.Packets;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -17,7 +20,7 @@ namespace RevolutionCore.Networking
     /// </summary>
     /// <typeparam name="T">Type from Rose client.</typeparam>
     /// <typeparam name="P">Type from Packet Handler.</typeparam>
-    public abstract class RoseServer<T, P> where T : RoseClient, new() where P : PacketHandler<T>
+    public abstract class RoseServer<T, P> : IServer<T> where T : RoseClient, new() where P : PacketHandler<T>
     {
         /// <summary>
         /// Database instance.
@@ -63,7 +66,7 @@ namespace RevolutionCore.Networking
         {
             clients = new List<T>();
             servers = new List<IscServer>();
-           // database = new Database(Configuration.DatabaseDbIp, Configuration.DatabasePort, Configuration.DatabaseName, Configuration.DatabaseUser, Configuration.DatabasePassword);
+            // database = new Database(Configuration.DatabaseDbIp, Configuration.DatabasePort, Configuration.DatabaseName, Configuration.DatabaseUser, Configuration.DatabasePassword);
             listener = new TcpListener(IPAddress.Parse(address), port);
             tokenSource = new CancellationTokenSource();
         }
@@ -90,7 +93,7 @@ namespace RevolutionCore.Networking
             tokenSource = CancellationTokenSource.CreateLinkedTokenSource(new CancellationToken());
             token = tokenSource.Token;
             listener.Start();
-          //  database.Open();
+            //  database.Open();
         }
 
         /// <summary>
@@ -164,11 +167,13 @@ namespace RevolutionCore.Networking
 
                     else
                     {
-                        if (client.LastActivity + Configuration.PingDuration <= DateTime.Now)
+                        if (client.LastActivity + Configuration.PingRate <= DateTime.Now)
                         {
                             if (!client.Pinged)
                             {
-                                await packetHandler.PingClient(client);
+                                client.Pinged = true;
+
+                                await SendPacket(client, new PacketOut(ServerCommands.Ping));
                             }
                         }
                     }
@@ -188,6 +193,32 @@ namespace RevolutionCore.Networking
 
                 await Task.CompletedTask;
             }
+        }
+
+        /// <summary>
+        /// Send a packet.
+        /// </summary>
+        /// <param name="stream">Stream.</param>
+        /// <param name="packet">Packet.</param>
+        /// <returns>Task.</returns>
+        public virtual async Task SendPacket(Stream stream, PacketOut packet)
+        {
+            Logger.LogImportantMessage("PACKET OUT", packet.StringFormat);
+
+            await stream.WriteAsync(packet.Buffer, 0, packet.Buffer.Length);
+
+            await stream.FlushAsync();
+        }
+
+        /// <summary>
+        /// Send a packet.
+        /// </summary>
+        /// <param name="client">Client.</param>
+        /// <param name="packet">Packet.</param>
+        /// <returns>Task.</returns>
+        public virtual async Task SendPacket(T client, PacketOut packet)
+        {
+            await SendPacket(client.TcpClient.GetStream(), packet);
         }
 
         /// <summary>

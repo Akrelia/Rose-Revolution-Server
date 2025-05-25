@@ -1,5 +1,6 @@
 ﻿using RevolutionCore.Configurations;
 using RevolutionCore.Networking;
+using RevolutionShared.Networking.Packets;
 using RoseSandboxServer.Core.Handling;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,35 @@ namespace RoseSandboxServer.Core
         public SandboxServer() : base(Configuration.SandboxServerAddress, Configuration.SandboxServerPort, Configuration.SandboxServerAddress, Configuration.SandboxServerPortIsc)
         {
             packetHandler = new SandboxPacketHandler(this, database);
+        }
+
+        /// <summary>
+        /// Broadcast a packet.
+        /// </summary>
+        /// <param name="packet">Packet.</param>
+        /// <returns>Task.</returns>
+        public virtual async Task BroadcastPacket(PacketOut packet)
+        {
+            for (int i = 0; i < clients.Count; i++)
+            {
+                await SendPacket(clients[i].TcpClient.GetStream(), packet);
+            }
+        }
+
+        /// <summary>
+        /// Broadcast a packet except one.
+        /// </summary>
+        /// <param name="packet">Packet.</param>
+        /// <returns>Task.</returns>
+        public virtual async Task BroadcastPacket(PacketOut packet, SandboxClient client)
+        {
+            for (int i = 0; i < clients.Count; i++)
+            {
+                if (clients[i] != client)
+                {
+                    await SendPacket(clients[i].TcpClient.GetStream(), packet);
+                }
+            }
         }
     }
 }

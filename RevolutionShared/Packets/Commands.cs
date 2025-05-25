@@ -18,7 +18,9 @@ namespace RevolutionShared.Packets
         SendNormalChat = 0x1002,
         SendShout = 0x1002,
         DisconnectSandbox = 0x1003,
-        GetWorld = 0x1004
+        GetWorld = 0x1004,
+        Move = 0x1005,
+        Equip = 0x1006
     }
 
     /// <summary>
@@ -33,6 +35,8 @@ namespace RevolutionShared.Packets
         MessageReceived = 0x1002,
         PlayerConnected = 0x1003,
         PlayerDisconnected = 0x1004,
-        SendWorld = 0x1005
+        SendWorld = 0x1005,
+        PlayerMoved = 0x1006,
+        PlayerUpdate = 0x1007
     }
 }

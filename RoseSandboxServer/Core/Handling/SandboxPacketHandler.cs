@@ -7,6 +7,7 @@ using RevolutionShared.Packets;
 using RoseSandboxServer;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,7 +42,21 @@ namespace RoseSandboxServer.Core.Handling
         {
             client.PlayerName = packet.GetString();
 
-            await SendPacket(client, SandboxPackets.ConnectionResponse(client));
+            client.gender = packet.GetByte();
+            client.hair = packet.GetByte();
+            client.face = packet.GetByte();
+            client.back = packet.GetInt();
+            client.body = packet.GetInt();
+            client.gloves = packet.GetInt();
+            client.shoes = packet.GetInt();
+            client.mask = packet.GetInt();
+            client.hat = packet.GetInt();
+            client.weapon = packet.GetInt();
+            client.subweapon = packet.GetInt();
+
+            await server.SendPacket(client, Packets.ConnectionResponse(client));
+
+            await server.BroadcastPacket(Packets.PlayerConnected(client), client);
         }
 
         /// <summary>
@@ -55,9 +70,7 @@ namespace RoseSandboxServer.Core.Handling
         {
             server.Disconnect(client);
 
-            // TODO : Send disconnected player to everyone
-
-            await Task.CompletedTask;
+            await server.BroadcastPacket(Packets.PlayerDisconnected(client));
         }
 
         /// <summary>
@@ -71,7 +84,7 @@ namespace RoseSandboxServer.Core.Handling
         {
             var message = packet.GetString(130);
 
-            await SendPacket(client, SandboxPackets.ChatMessageSent(client, message)); // TODO : Remove this afterward and sell to all people
+            await server.SendPacket(client, Packets.ChatMessageSent(client, message)); // TODO : Remove this afterward and sell to all people
         }
 
         /// <summary>
@@ -83,7 +96,45 @@ namespace RoseSandboxServer.Core.Handling
         [PacketCommand(ClientCommands.GetWorld)]
         public async Task WorldRequested(SandboxClient client, PacketIn packet)
         {
-            await SendPacket(client, SandboxPackets.SendWorldInformations(Configuration.MOTD));
+            await server.SendPacket(client, Packets.SendWorldInformations(Configuration.MOTD));
+        }
+
+        /// <summary>
+        /// Player requesting the world.
+        /// </summary>
+        /// <param name="client">Client.</param>
+        /// <param name="packet">Packet.</param>
+        /// <returns>Task.</returns>
+        [PacketCommand(ClientCommands.Move)]
+        public async Task PlayerMoved(SandboxClient client, PacketIn packet)
+        {
+            await server.SendPacket(client, Packets.SendWorldInformations(Configuration.MOTD));
+        }
+
+        /// <summary>
+        /// When the player ping the server.
+        /// </summary>
+        /// <param name="client">Client.</param>
+        /// <param name="packet">Packet.</param>
+        /// <returns>Task.</returns>
+        [PacketCommand(ClientCommands.Ping)]
+        public async Task ActionPing(SandboxClient client, PacketIn packet)
+        {
+            await server.SendPacket(client, Packets.Pong());
+        }
+
+        /// <summary>
+        /// When the player ping the server.
+        /// </summary>
+        /// <param name="client">Client.</param>
+        /// <param name="packet">Packet.</param>
+        /// <returns>Task.</returns>
+        [PacketCommand(ClientCommands.Pong)]
+        public async Task ActionPong(SandboxClient client, PacketIn packet)
+        {
+            client.RefreshActivity();
+
+            await Task.CompletedTask;
         }
     }
 }
@@ -91,7 +142,7 @@ namespace RoseSandboxServer.Core.Handling
 /// <summary>
 /// Packets for Sandbox server.
 /// </summary>
-public static class SandboxPackets
+public static class Packets
 {
     /// <summary>
     /// Packet - Connection Response.
@@ -133,6 +184,83 @@ public static class SandboxPackets
         PacketOut packet = new PacketOut(ServerCommands.SendWorld);
 
         packet.Add(motd);
+
+        return packet;
+    }
+
+    /// <summary>
+    /// Packet - Player Connected.
+    /// </summary>
+    /// <param name="client">Client.</param>
+    /// <returns>Packet.</returns>
+    public static PacketOut PlayerConnected(SandboxClient client)
+    {
+        PacketOut packet = new PacketOut(ServerCommands.PlayerConnected);
+
+        packet.Add(client.GUID.ToByteArray());
+        packet.Add(client.PlayerName);
+
+        packet.Add(client.gender);
+        packet.Add(client.hair);
+        packet.Add(client.face);
+        packet.Add(client.back);
+        packet.Add(client.body);
+        packet.Add(client.gloves);
+        packet.Add(client.shoes);
+        packet.Add(client.mask);
+        packet.Add(client.hat);
+        packet.Add(client.weapon);
+        packet.Add(client.subweapon);
+
+        return packet;
+    }
+
+    /// <summary>
+    /// Packet - Player Disconnected.
+    /// </summary>
+    /// <param name="client">Client.</param>
+    /// <returns>Packet.</returns>
+    public static PacketOut PlayerDisconnected(SandboxClient client)
+    {
+        PacketOut packet = new PacketOut(ServerCommands.PlayerDisconnected);
+
+        packet.Add(client.GUID.ToByteArray());
+
+        return packet;
+    }
+
+    /// <summary>
+    /// Packet - Player Moved.
+    /// </summary>
+    /// <param name="client">Client.</param>
+    /// <returns>Packet.</returns>
+    public static PacketOut PlayerMoved(SandboxClient client)
+    {
+        PacketOut packet = new PacketOut(ServerCommands.PlayerMoved);
+
+        packet.Add(client.GUID.ToByteArray());
+
+        return packet;
+    }
+
+    /// <summary>
+    /// Ping Packet.
+    /// </summary>
+    /// <returns>Packet.</returns>
+    public static PacketOut Ping()
+    {
+        PacketOut packet = new PacketOut(ServerCommands.Ping);
+
+        return packet;
+    }
+
+    /// <summary>
+    /// Pong Packet.
+    /// </summary>
+    /// <returns>Packet.</returns>
+    public static PacketOut Pong()
+    {
+        PacketOut packet = new PacketOut(ServerCommands.Pong);
 
         return packet;
     }

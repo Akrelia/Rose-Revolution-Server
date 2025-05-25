@@ -30,7 +30,7 @@ namespace RevolutionCore.Configurations
         /// <summary>
         /// Ping rate (in seconds).
         /// </summary>
-        public static int Ping = 60;
+        public static TimeSpan PingRate = TimeSpan.FromSeconds(60);
         /// <summary>
         /// Username maximum length.
         /// </summary>
