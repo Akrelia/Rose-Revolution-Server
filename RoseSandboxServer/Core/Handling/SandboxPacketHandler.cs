@@ -5,6 +5,7 @@ using RevolutionShared.Attributes;
 using RevolutionShared.Networking.Packets;
 using RevolutionShared.Packets;
 using RoseSandboxServer;
+using RoseSandboxServer.Core.Data;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -108,7 +109,13 @@ namespace RoseSandboxServer.Core.Handling
         [PacketCommand(ClientCommands.Move)]
         public async Task PlayerMoved(SandboxClient client, PacketIn packet)
         {
-            await server.SendPacket(client, Packets.SendWorldInformations(Configuration.MOTD));
+            var x = packet.GetFloat();
+            var y = packet.GetFloat();
+            var z = packet.GetFloat();
+
+            Vector3 position = new Vector3(x, y, z);
+
+            await server.BroadcastPacket(Packets.PlayerMoved(client, position), client);
         }
 
         /// <summary>
@@ -234,11 +241,15 @@ public static class Packets
     /// </summary>
     /// <param name="client">Client.</param>
     /// <returns>Packet.</returns>
-    public static PacketOut PlayerMoved(SandboxClient client)
+    public static PacketOut PlayerMoved(SandboxClient client, Vector3 position)
     {
         PacketOut packet = new PacketOut(ServerCommands.PlayerMoved);
 
         packet.Add(client.GUID.ToByteArray());
+
+        packet.Add(position.x);
+        packet.Add(position.y);
+        packet.Add(position.z);
 
         return packet;
     }

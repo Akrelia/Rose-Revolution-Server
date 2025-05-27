@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Data\Vector3.cs" />
     <Compile Include="Core\Handling\SandboxPacketHandler.cs" />
     <Compile Include="Core\SandboxServer.cs" />
     <Compile Include="Program.cs" />
