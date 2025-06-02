@@ -14,11 +14,11 @@ namespace RevolutionCore.Configurations
         /// <summary>
         /// Server address.
         /// </summary>
-        public static string SandboxServerAddress = "127.0.0.1";
+        public static string SandboxServerAddress = "192.168.1.198";
         /// <summary>
         /// Server port.
         /// </summary>
-        public static short SandboxServerPort = 30000;
+        public static short SandboxServerPort = 27350;
         /// <summary>
         /// Server isc port.
         /// </summary>

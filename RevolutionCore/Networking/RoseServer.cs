@@ -142,7 +142,7 @@ namespace RevolutionCore.Networking
             {
                 while (client.TcpClient.Connected)
                 {
-                    var packet = await packetHandler.GetPacketAsync(client.TcpClient, tokenSource.Token);
+                    var packet = await packetHandler.GetPacketAsync(client, tokenSource.Token);
 
                     if (packet != null)
                     {
@@ -203,8 +203,6 @@ namespace RevolutionCore.Networking
         /// <returns>Task.</returns>
         public virtual async Task SendPacket(Stream stream, PacketOut packet)
         {
-            Logger.LogImportantMessage("PACKET OUT", packet.StringFormat);
-
             await stream.WriteAsync(packet.Buffer, 0, packet.Buffer.Length);
 
             await stream.FlushAsync();
@@ -218,7 +216,38 @@ namespace RevolutionCore.Networking
         /// <returns>Task.</returns>
         public virtual async Task SendPacket(T client, PacketOut packet)
         {
+            Logger.LogImportantMessage("OUT",  $"{client.ToString()}> [{((ServerCommands)packet.Command).ToString()}]");
+
             await SendPacket(client.TcpClient.GetStream(), packet);
+        }
+
+        /// <summary>
+        /// Broadcast a packet.
+        /// </summary>
+        /// <param name="packet">Packet.</param>
+        /// <returns>Task.</returns>
+        public virtual async Task BroadcastPacket(PacketOut packet)
+        {
+            for (int i = 0; i < clients.Count; i++)
+            {
+                await SendPacket(clients[i].TcpClient.GetStream(), packet);
+            }
+        }
+
+        /// <summary>
+        /// Broadcast a packet except one.
+        /// </summary>
+        /// <param name="packet">Packet.</param>
+        /// <returns>Task.</returns>
+        public virtual async Task BroadcastPacket(PacketOut packet, T client)
+        {
+            for (int i = 0; i < clients.Count; i++)
+            {
+                if (clients[i] != client)
+                {
+                    await SendPacket(clients[i].TcpClient.GetStream(), packet);
+                }
+            }
         }
 
         /// <summary>

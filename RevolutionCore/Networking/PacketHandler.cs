@@ -48,10 +48,10 @@ namespace RevolutionCore.Networking
         /// </summary>
         /// <param name="context">Context.</param>
         /// <returns>Packet.</returns>
-        public async Task<PacketIn> GetPacketAsync(TcpClient client, CancellationToken token)
+        public async Task<PacketIn> GetPacketAsync(T client, CancellationToken token)
         {
             var header = new byte[6];
-            var stream = client.GetStream();
+            var stream = client.TcpClient.GetStream();
 
             if (stream.DataAvailable)
             {
@@ -79,14 +79,14 @@ namespace RevolutionCore.Networking
 
                         PacketIn packet = new PacketIn(buffer);
 
-                        Logger.LogDebug("PACKET IN : " + packet.StringFormat);
+                        Logger.LogImportantMessage("IN" ,$"{client.ToString()}> [{((ClientCommands)packet.Command).ToString()}]");
 
                         return packet;
                     }
 
                     else
                     {
-                        Logger.LogWarning($"{((IPEndPoint)client.Client.RemoteEndPoint).Address} is trying to send a large packet !");
+                        Logger.LogWarning($"{client.ToString()} ({client.IP}) is trying to send a large packet !");
 
                         return null;
                     }
@@ -94,7 +94,7 @@ namespace RevolutionCore.Networking
 
                 else
                 {
-                    Logger.LogWarning($"{((IPEndPoint)client.Client.RemoteEndPoint).Address} is not connected anymore");
+                    Logger.LogWarning($"{client.ToString()} ({client.IP}) is not connected anymore");
                 }
             }
 

@@ -1,9 +1,15 @@
-﻿using RevolutionCore.Configurations;
+﻿using Newtonsoft.Json;
+using RevolutionCore.Configurations;
 using RevolutionCore.Networking;
+using RevolutionCore.Utils;
+using RevolutionShared.JSON;
 using RevolutionShared.Networking.Packets;
+using RoseSandboxServer.Core.Data;
 using RoseSandboxServer.Core.Handling;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,43 +19,155 @@ namespace RoseSandboxServer.Core
     /// <summary>
     /// Sandbox server.
     /// </summary>
-    public class SandboxServer : RoseServer<SandboxClient, SandboxPacketHandler>
+    public partial class SandboxServer : RoseServer<SandboxClient, SandboxPacketHandler>
     {
+        Dictionary<int, SpawnData> spawnData;
+        Dictionary<int, List<Entity>> entities;
+
         /// <summary>
         /// Constructor.
         /// </summary>
         public SandboxServer() : base(Configuration.SandboxServerAddress, Configuration.SandboxServerPort, Configuration.SandboxServerAddress, Configuration.SandboxServerPortIsc)
         {
             packetHandler = new SandboxPacketHandler(this, database);
+
+            spawnData = new Dictionary<int, SpawnData>();
+            entities = new Dictionary<int, List<Entity>>();
+
+            LoadData();
+
+            PopulateMaps();
         }
 
         /// <summary>
-        /// Broadcast a packet.
+        /// Load all the data the sandbox server need.
         /// </summary>
-        /// <param name="packet">Packet.</param>
-        /// <returns>Task.</returns>
-        public virtual async Task BroadcastPacket(PacketOut packet)
+        public void LoadData()
         {
-            for (int i = 0; i < clients.Count; i++)
+            string dataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
+
+            if (Directory.Exists(dataPath))
             {
-                await SendPacket(clients[i].TcpClient.GetStream(), packet);
+                spawnData = LoadSpawns(Path.Combine(dataPath, "Spawns"));
+
+                Logger.LogImportantMessage($"{spawnData.Count} spawns file(s) loaded");
+            }
+
+            else
+            {
+                Logger.LogWarning($"No data folder found ! The server will not load anything");
             }
         }
 
         /// <summary>
-        /// Broadcast a packet except one.
+        /// Populate every maps with the data read from the files.
         /// </summary>
-        /// <param name="packet">Packet.</param>
-        /// <returns>Task.</returns>
-        public virtual async Task BroadcastPacket(PacketOut packet, SandboxClient client)
+        public void PopulateMaps()
         {
-            for (int i = 0; i < clients.Count; i++)
+            foreach (var spawn in spawnData.Values)
             {
-                if (clients[i] != client)
+                if (!entities.ContainsKey(spawn.MapID))
                 {
-                    await SendPacket(clients[i].TcpClient.GetStream(), packet);
+                    entities[spawn.MapID] = new List<Entity>();
+                }
+
+                foreach (var entity in spawn.Spawns)
+                {
+                    var monsterSpawn = entity.Basic.PickUp();
+
+                    for (int j = 0; j < monsterSpawn.Count; j++)
+                    {
+                        var worldPosition = new Vector3(entity.Settings.WorldX, -entity.Settings.WorldZ, entity.Settings.WorldY);
+
+                        var position = RandomPosition(worldPosition, entity.Settings.Range);
+
+                        var monster = new Entity(monsterSpawn.ID, monsterSpawn.ID, position);
+
+                        SpawnEntity(spawn.MapID, monster, position);
+                    }
                 }
             }
+
+            Logger.LogImportantMessage($"{entities.Count} map(s) populated with {entities.Sum(e => e.Value.Count)} entities created");
+        }
+
+        /// <summary>
+        /// Spawn an entity in a specific map.
+        /// </summary>
+        /// <param name="mapId">Map id.</param>
+        /// <param name="entity">Entity. to spawn</param>
+        /// <param name="position">Initial position.</param>
+        public void SpawnEntity(int mapId, Entity entity, Vector3 position)
+        {
+            entity.position = position;
+
+            entity.id = RandomInt();
+
+            if (entities.ContainsKey(mapId))
+            {
+                entities[mapId].Add(entity);
+            }
+
+            else
+            {
+                entities.Add(mapId, new List<Entity> { entity });
+            }
+        }
+
+        /// <summary>
+        /// Get entities nearby the client.
+        /// </summary>
+        /// <param name="client">Client.</param>
+        /// <returns>List of nearby entities.</returns>
+        public List<Entity> GetNearbyEntities(SandboxClient client)
+        {
+            var entitiesMap = entities[client.map];
+
+            var nearbyEntities = new List<Entity>();
+
+            for (int i = 0; i < entitiesMap.Count; i++)
+            {
+                if (Vector3.Distance(client.position, entitiesMap[i].position) <= 200)
+                {
+                    nearbyEntities.Add(entitiesMap[i]);
+                }
+            }
+
+            return nearbyEntities;
+        }
+
+        /// <summary>
+        /// Load all spawns from the maps.
+        /// </summary>
+        /// <param name="dataPath">Data path.</param>
+        /// <returns>Spawns.</returns>
+        private Dictionary<int, SpawnData> LoadSpawns(string dataPath)
+        {
+            var spawns = new Dictionary<int, SpawnData>();
+
+            var files = Directory.GetFiles(dataPath, "*.json");
+
+            foreach (var file in files)
+            {
+                try
+                {
+                    string json = File.ReadAllText(file);
+
+                    var spawnData = JsonConvert.DeserializeObject<SpawnData>(json);
+
+                    if (spawnData != null)
+                    {
+                        spawns.Add(spawnData.MapID, spawnData);
+                    }
+                }
+
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"The file {file} doesn't seems to be a spawn data file : {ex.Message}");
+                }
+            }
+
+            return spawns;
         }
     }
 }

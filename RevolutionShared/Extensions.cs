@@ -14,6 +14,8 @@ namespace RevolutionCore.Utils
     /// </summary>
     public static class SerializerDeserializerExtensions
     {
+        private static readonly Random random = new Random();
+
         /// <summary>
         /// Serialize an object.
         /// </summary>
@@ -50,6 +52,24 @@ namespace RevolutionCore.Utils
             }
 
             return ReturnValue;
+        }
+
+        /// <summary>
+        /// Get a random item in the list.
+        /// </summary>
+        /// <typeparam name="T">Type of the list.</typeparam>
+        /// <param name="list">Current list.</param>
+        /// <returns>Random elemeent.</returns>
+        public static T PickUp<T>(this IList<T> list)
+        {
+            if (list == null || list.Count == 0)
+            {
+                throw new InvalidOperationException("Listis null or empty.");
+            }
+
+            int index = random.Next(list.Count);
+
+            return list[index];
         }
     }
 }

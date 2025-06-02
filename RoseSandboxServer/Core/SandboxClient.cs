@@ -1,5 +1,6 @@
 ﻿using RevolutionCore.Networking;
 using RevolutionCore.Utils;
+using RoseSandboxServer.Core.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,12 +27,16 @@ namespace RoseSandboxServer
         public int hat;
         public int weapon;
         public int subweapon;
+        public int map;
+
+        public Vector3 position;
 
         /// <summary>
         /// Parameterless Constructor.
         /// </summary>
         public SandboxClient() : base()
         {
+            map = 61;
         }
 
         /// <summary>
@@ -39,6 +44,7 @@ namespace RoseSandboxServer
         /// </summary>
         public SandboxClient(TcpClient tcpClient) : base(tcpClient)
         {
+            map = 61;
         }
 
         /// <summary>
@@ -48,6 +54,15 @@ namespace RoseSandboxServer
         {
             get { return playerName; }
             set { playerName = value; }
+        }
+
+        /// <summary>
+        /// String format.
+        /// </summary>
+        /// <returns>Object in string format.</returns>
+        public override string ToString()
+        {
+            return $"{(string.IsNullOrEmpty(playerName) ? base.ToString() : playerName)}";
         }
     }
 }

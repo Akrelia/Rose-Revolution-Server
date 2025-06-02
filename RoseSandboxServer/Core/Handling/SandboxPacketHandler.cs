@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -85,7 +86,7 @@ namespace RoseSandboxServer.Core.Handling
         {
             var message = packet.GetString(130);
 
-            await server.SendPacket(client, Packets.ChatMessageSent(client, message)); // TODO : Remove this afterward and sell to all people
+            await server.BroadcastPacket(Packets.ChatMessageSent(client, message));
         }
 
         /// <summary>
@@ -97,7 +98,7 @@ namespace RoseSandboxServer.Core.Handling
         [PacketCommand(ClientCommands.GetWorld)]
         public async Task WorldRequested(SandboxClient client, PacketIn packet)
         {
-            await server.SendPacket(client, Packets.SendWorldInformations(Configuration.MOTD));
+            await server.SendPacket(client, Packets.SendWorldInformations(client, server.Clients));
         }
 
         /// <summary>
@@ -115,6 +116,11 @@ namespace RoseSandboxServer.Core.Handling
 
             Vector3 position = new Vector3(x, y, z);
 
+            client.position = position;
+
+            var entities = server.GetNearbyEntities(client);
+
+            await server.SendPacket(client, Packets.GetSurroundings(entities));
             await server.BroadcastPacket(Packets.PlayerMoved(client, position), client);
         }
 
@@ -184,13 +190,43 @@ public static class Packets
     /// <summary>
     /// Packet - World Informations.
     /// </summary>
-    /// <param name="motd"></param>
+    /// <param name="clients">Clients.</param>
     /// <returns>Packet.</returns>
-    public static PacketOut SendWorldInformations(string motd)
+    public static PacketOut SendWorldInformations(SandboxClient connecting, List<SandboxClient> clients)
     {
         PacketOut packet = new PacketOut(ServerCommands.SendWorld);
 
-        packet.Add(motd);
+        packet.Add(Configuration.MOTD);
+
+        packet.Add(clients.Count - 1);
+
+        for (int i = 0; i < clients.Count; i++)
+        {
+            if (clients[i] != connecting)
+            {
+                var client = clients[i];
+
+                packet.Add(client.GUID.ToByteArray());
+
+                packet.Add(client.PlayerName);
+
+                packet.Add(client.gender);
+                packet.Add(client.hair);
+                packet.Add(client.face);
+                packet.Add(client.back);
+                packet.Add(client.body);
+                packet.Add(client.gloves);
+                packet.Add(client.shoes);
+                packet.Add(client.mask);
+                packet.Add(client.hat);
+                packet.Add(client.weapon);
+                packet.Add(client.subweapon);
+
+                packet.Add(client.position.x);
+                packet.Add(client.position.y);
+                packet.Add(client.position.z);
+            }
+        }
 
         return packet;
     }
@@ -254,6 +290,30 @@ public static class Packets
         return packet;
     }
 
+    /// <summary>
+    /// Packet - Get Surroundings.
+    /// </summary>
+    /// <param name="entities">Entities around.</param>
+    /// <returns>Packet.</returns>
+    public static PacketOut GetSurroundings(List<Entity> entities)
+    {
+        PacketOut packet = new PacketOut(ServerCommands.AddEntities);
+
+        packet.Add(entities.Count);
+
+        for (int i = 0; i < entities.Count; i++)
+        {
+            var entity = entities[i];
+
+            packet.Add(entity.id);
+            packet.Add(entity.dataId);
+            packet.Add(entity.position.x * 100F);
+            packet.Add(entity.position.y);
+            packet.Add(entity.position.z * 100F);
+        }
+
+        return packet;
+    }
     /// <summary>
     /// Ping Packet.
     /// </summary>
