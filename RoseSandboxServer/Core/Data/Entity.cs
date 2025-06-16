@@ -20,12 +20,10 @@ namespace RoseSandboxServer.Core.Data
         /// </summary>
         /// <param name="id">Id of the monster.</param>
         /// <param name="dataId">Data ID</param>
-        /// <param name="position">Initial position.</param>
-        public Entity(int id, int dataId, Vector3 position)
+        public Entity(int id, int dataId)
         {
             this.id = id;
             this.dataId = dataId;
-            this.position = position;
         }
     }
 }

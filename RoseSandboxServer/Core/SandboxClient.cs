@@ -36,7 +36,7 @@ namespace RoseSandboxServer
         /// </summary>
         public SandboxClient() : base()
         {
-            map = 61;
+            map = 62;
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace RoseSandboxServer
         /// </summary>
         public SandboxClient(TcpClient tcpClient) : base(tcpClient)
         {
-            map = 61;
+            map = 62;
         }
 
         /// <summary>

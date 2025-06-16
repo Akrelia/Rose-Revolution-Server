@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Data\Spawns\Shady Jungle.json" />
     <None Include="Data\Spawns\Xita Refuge.json" />
     <None Include="packages.config" />
   </ItemGroup>

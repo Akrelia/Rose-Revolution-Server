@@ -77,13 +77,13 @@ namespace RoseSandboxServer.Core
 
                     for (int j = 0; j < monsterSpawn.Count; j++)
                     {
-                        var worldPosition = new Vector3(entity.Settings.WorldX, -entity.Settings.WorldZ, entity.Settings.WorldY);
+                        var worldPosition = new Vector3(entity.Settings.WorldX, entity.Settings.WorldZ, entity.Settings.WorldY);
 
                         var position = RandomPosition(worldPosition, entity.Settings.Range);
 
-                        var monster = new Entity(monsterSpawn.ID, monsterSpawn.ID, position);
+                        var monster = new Entity(monsterSpawn.ID, monsterSpawn.ID);
 
-                        SpawnEntity(spawn.MapID, monster, position);
+                        SpawnEntity(spawn.MapID, monster, worldPosition);
                     }
                 }
             }
@@ -127,7 +127,7 @@ namespace RoseSandboxServer.Core
 
             for (int i = 0; i < entitiesMap.Count; i++)
             {
-                if (Vector3.Distance(client.position, entitiesMap[i].position) <= 200)
+                if (Vector3.Distance(client.position, entitiesMap[i].position) <= 10)
                 {
                     nearbyEntities.Add(entitiesMap[i]);
                 }
