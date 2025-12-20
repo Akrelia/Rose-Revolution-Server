@@ -1,6 +1,8 @@
 # Introduction
 
-<img src="https://i.imgur.com/QorK0mp.png" alt="Image" width="400" />
+<p align="center">
+  <img src="https://i.imgur.com/QorK0mp.png" alt="Image" width="300" />
+</p>
 
 Welcome to the Rose Revolution server repository!
 
