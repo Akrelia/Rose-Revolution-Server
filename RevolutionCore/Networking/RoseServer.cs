@@ -53,7 +53,9 @@ namespace RevolutionCore.Networking
         /// <summary>
         /// User tasks.
         /// </summary>
-        protected Dictionary<Guid, Task> userTasks = new Dictionary<Guid, Task>();
+        protected Dictionary<long, Task> userTasks = new Dictionary<long, Task>();
+
+        private long currentClientIndex;
 
         /// <summary>
         /// Constructor.
@@ -108,13 +110,15 @@ namespace RevolutionCore.Networking
                 {
                     var tcpClient = await listener.AcceptTcpClientAsync().ConfigureAwait(false);
 
-                    T client = new T() { TcpClient = tcpClient }; // C# can't have generic constructor with parameters
+                    var clientID = PickClientID();
 
-                    Logger.LogImportantMessage("CONNECTION", $"Client ({client.GUID}) connected from {tcpClient.Client.RemoteEndPoint}");
+                    T client = new T() { TcpClient = tcpClient, ID = clientID}; // C# can't have generic constructor with parameters
+
+                    Logger.LogImportantMessage("CONNECTION", $"Client {client} connected from {tcpClient.Client.RemoteEndPoint}");
 
                     clients.Add(client);
 
-                    userTasks[client.GUID] = UpdateUserAsync(client);
+                    userTasks[client.ID] = UpdateUserAsync(client);
 
                     await Task.Delay(10, cancelToken);
                 }
@@ -184,7 +188,7 @@ namespace RevolutionCore.Networking
 
             catch (Exception ex)
             {
-                Console.WriteLine($"Error while updating user {client.GUID}: {ex.Message}");
+                Console.WriteLine($"Error while updating user {client}: {ex.Message}");
             }
 
             finally
@@ -248,6 +252,17 @@ namespace RevolutionCore.Networking
                     await SendPacket(clients[i].TcpClient.GetStream(), packet);
                 }
             }
+        }
+
+        /// <summary>
+        /// Pick a client ID.
+        /// </summary>
+        /// <returns>Brand new client ID.</returns>
+        public long PickClientID()
+        {
+            currentClientIndex++; // Note : since we use long, there is no need to check duplicata, since there will be collision in an absurd amount of time
+
+            return currentClientIndex;
         }
 
         /// <summary>

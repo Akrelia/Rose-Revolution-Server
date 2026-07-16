@@ -99,6 +99,8 @@
     <Compile Include="Configurations\Configuration.SandboxServer.cs" />
     <Compile Include="Configurations\Configuration.WorldServer.cs" />
     <Compile Include="Networking\Channel.cs" />
+    <Compile Include="Networking\IPacketReadable.cs" />
+    <Compile Include="Networking\IPacketWritable.cs" />
     <Compile Include="Networking\IscServer.cs" />
     <Compile Include="Networking\IServer.cs" />
     <Compile Include="Networking\PacketHandler.cs" />

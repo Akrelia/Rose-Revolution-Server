@@ -12,7 +12,7 @@ namespace RevolutionCore.Networking
         /// <summary>
         /// Guid.
         /// </summary>
-        protected Guid guid;
+        protected long id;
         /// <summary>
         /// Pinged.
         /// </summary>
@@ -51,8 +51,6 @@ namespace RevolutionCore.Networking
         /// </summary>
         public RoseClient()
         {
-            guid = Guid.NewGuid();
-
             RefreshActivity();
         }
 
@@ -88,10 +86,10 @@ namespace RevolutionCore.Networking
         /// <summary>
         /// Get or set the GUID of the client.
         /// </summary>
-        public Guid GUID
+        public long ID
         {
-            get { return guid; }
-            set { guid = value; }
+            get { return id; }
+            set { id = value; }
         }
 
         /// <summary>
@@ -169,7 +167,7 @@ namespace RevolutionCore.Networking
         /// <returns>Object in string format.</returns>
         public override string ToString()
         {
-            return $"({GUID})";
+            return $"({ID}:{IP})";
         }
 
         /// <summary>

@@ -165,7 +165,7 @@ public static class Packets
     {
         PacketOut packet = new PacketOut(ServerCommands.SandboxConnectionResponse);
 
-        packet.Add(client.GUID.ToByteArray());
+        packet.Add(client.ID);
         packet.Add(client.PlayerName);
 
         return packet;
@@ -181,7 +181,7 @@ public static class Packets
     {
         PacketOut packet = new PacketOut(ServerCommands.MessageReceived);
 
-        packet.Add(client.GUID.ToByteArray());
+        packet.Add(client.ID);
         packet.Add(message);
 
         return packet;
@@ -206,7 +206,7 @@ public static class Packets
             {
                 var client = clients[i];
 
-                packet.Add(client.GUID.ToByteArray());
+                packet.Add(client.ID);
 
                 packet.Add(client.PlayerName);
 
@@ -240,7 +240,7 @@ public static class Packets
     {
         PacketOut packet = new PacketOut(ServerCommands.PlayerConnected);
 
-        packet.Add(client.GUID.ToByteArray());
+        packet.Add(client.ID);
         packet.Add(client.PlayerName);
 
         packet.Add(client.gender);
@@ -267,7 +267,7 @@ public static class Packets
     {
         PacketOut packet = new PacketOut(ServerCommands.PlayerDisconnected);
 
-        packet.Add(client.GUID.ToByteArray());
+        packet.Add(client.ID);
 
         return packet;
     }
@@ -281,7 +281,7 @@ public static class Packets
     {
         PacketOut packet = new PacketOut(ServerCommands.PlayerMoved);
 
-        packet.Add(client.GUID.ToByteArray());
+        packet.Add(client.ID);
 
         packet.Add(position.x);
         packet.Add(position.y);

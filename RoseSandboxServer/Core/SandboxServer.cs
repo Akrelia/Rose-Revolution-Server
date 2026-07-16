@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using LinqToDB;
+using Newtonsoft.Json;
 using RevolutionCore.Configurations;
 using RevolutionCore.Networking;
 using RevolutionCore.Utils;
@@ -21,6 +22,7 @@ namespace RoseSandboxServer.Core
     /// </summary>
     public partial class SandboxServer : RoseServer<SandboxClient, SandboxPacketHandler>
     {
+        SandboxDatabase db = new SandboxDatabase();
         Dictionary<int, SpawnData> spawnData;
         Dictionary<int, List<Entity>> entities;
 
@@ -35,6 +37,8 @@ namespace RoseSandboxServer.Core
             entities = new Dictionary<int, List<Entity>>();
 
             LoadData();
+
+            db.Initialize();
 
             PopulateMaps();
         }

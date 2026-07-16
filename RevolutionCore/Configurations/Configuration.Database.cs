@@ -14,17 +14,17 @@ namespace RevolutionCore.Configurations
         /// <summary>
         /// Database's ip.
         /// </summary>
-        static public string DatabaseDbIp = "31.220.78.168";
+        static public string DatabaseIP = "192.168.1.57";
 
         /// <summary>
         /// Database's port.
         /// </summary>
-        static public string DatabasePort = "5433";
+        static public string DatabasePort = "5432";
 
         /// <summary>
         /// Database's name.
         /// </summary>
-        static public string DatabaseName = "roseonlinerevolution";
+        static public string DatabaseName = "roserevolution";
         /// <summary>
         /// Database's SQL user.
         /// </summary>
@@ -32,6 +32,10 @@ namespace RevolutionCore.Configurations
         /// <summary>
         /// Database's password.
         /// </summary>
-        static public string DatabasePassword = "P4ssw0rd-th4t-!5-H4rd-T0_f!nD$";
+        static public string DatabasePassword = "password";
+        /// <summary>
+        /// Database's time out.
+        /// </summary>
+        static public int DatabaseTimeOut = 5;
     }
 }
