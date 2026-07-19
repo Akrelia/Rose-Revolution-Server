@@ -1,4 +1,5 @@
-﻿using RoseSandboxServer.Core;
+﻿using RevolutionCore.Configurations;
+using RoseSandboxServer.Core;
 using RoseSandboxServer.Core.Handling;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,18 @@ namespace RoseSandboxServer
         {
             var server = new SandboxServer();
 
+            StartUp(server.Configuration);
+
             await server.StartAsync();
+        }
+
+        /// <summary>
+        /// Some initialization on the start up.
+        /// </summary>
+        static public void StartUp(ServerConfiguration configuration)
+        {
+            Console.Title = $"Sandbox Server ({configuration.ServerAddress}:{configuration.ServerPort})";
+            Console.SetWindowSize(165, 50);
         }
     }
 }

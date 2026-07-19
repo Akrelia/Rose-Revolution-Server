@@ -3,13 +3,14 @@ using LinqToDB.Common;
 using LinqToDB.Data;
 using LinqToDB.Tools;
 using Npgsql;
+using RevolutionCore.Configurations;
 using RoseSandboxServer.Data.SQL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DatabaseConfiguration = RevolutionCore.Configurations.Configuration;
+
 namespace RoseSandboxServer.Core
 {
     /// <summary>
@@ -17,8 +18,8 @@ namespace RoseSandboxServer.Core
     /// </summary>
     public class SandboxDatabase : DataConnection
     {
-        private static string AdminConnectionString = $"Host={DatabaseConfiguration.DatabaseIP};Username={DatabaseConfiguration.DatabaseUser};Password={DatabaseConfiguration.DatabasePassword};Database=postgres;Timeout={DatabaseConfiguration.DatabaseTimeOut}";
-        private static string RoseOnlineConnectionString = $"Host={DatabaseConfiguration.DatabaseIP};Username={DatabaseConfiguration.DatabaseUser};Password={DatabaseConfiguration.DatabasePassword};Database={DatabaseConfiguration.DatabaseName};Timeout={DatabaseConfiguration.DatabaseTimeOut}";
+        private static string AdminConnectionString = $"Host={DatabaseConfiguration.DatabaseAddress};Username={DatabaseConfiguration.DatabaseUser};Password={DatabaseConfiguration.DatabasePassword};Database=postgres;Timeout={DatabaseConfiguration.DatabaseTimeOut}";
+        private static string RoseOnlineConnectionString = $"Host={DatabaseConfiguration.DatabaseAddress};Username={DatabaseConfiguration.DatabaseUser};Password={DatabaseConfiguration.DatabasePassword};Database={DatabaseConfiguration.DatabaseName};Timeout={DatabaseConfiguration.DatabaseTimeOut}";
 
         /// <summary>
         /// Constructor.

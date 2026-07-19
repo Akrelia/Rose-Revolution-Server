@@ -64,8 +64,7 @@ namespace RoseSandboxServer.Core.Data
                 a.x * b.y - a.y * b.x
             );
 
-        public static float Distance(Vector3 a, Vector3 b) =>
-            (a - b).Magnitude;
+        public static float Distance(Vector3 a, Vector3 b) =>(a - b).Magnitude;
 
         public override string ToString() =>
             $"({x:0.###}, {y:0.###}, {z:0.###})";

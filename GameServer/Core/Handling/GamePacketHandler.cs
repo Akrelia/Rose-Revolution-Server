@@ -20,7 +20,7 @@ namespace RoseGameServer.Core.Handling
         /// </summary>
         /// <param name="server">Server instance.</param>
         /// <param name="database">Database instance.</param>
-        public GamePacketHandler(GameServer server, Database database) : base(database)
+        public GamePacketHandler(GameServer server, Database database) : base(server.Configuration, database)
         {
             this.server = server;
         }

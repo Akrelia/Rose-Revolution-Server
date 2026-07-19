@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,7 +21,7 @@ namespace RoseSandboxServer.Core
     /// <summary>
     /// Sandbox server.
     /// </summary>
-    public partial class SandboxServer : RoseServer<SandboxClient, SandboxPacketHandler>
+    public partial class SandboxServer : RoseServer<SandboxClient, SandboxPacketHandler, SandboxConfiguration>
     {
         SandboxDatabase db = new SandboxDatabase();
         Dictionary<int, SpawnData> spawnData;
@@ -29,7 +30,7 @@ namespace RoseSandboxServer.Core
         /// <summary>
         /// Constructor.
         /// </summary>
-        public SandboxServer() : base(Configuration.SandboxServerAddress, Configuration.SandboxServerPort, Configuration.SandboxServerAddress, Configuration.SandboxServerPortIsc)
+        public SandboxServer()
         {
             packetHandler = new SandboxPacketHandler(this, database);
 
@@ -38,9 +39,20 @@ namespace RoseSandboxServer.Core
 
             LoadData();
 
-            db.Initialize();
+         //   db.Initialize();
 
             PopulateMaps();
+        }
+
+        /// <summary>
+        /// Initialize the client.
+        /// </summary>
+        /// <param name="client">Client.</param>
+        public override void InitializeClient(SandboxClient client)
+        {
+            base.InitializeClient(client);
+
+            client.map = configuration.StartingMapID;
         }
 
         /// <summary>
@@ -75,7 +87,7 @@ namespace RoseSandboxServer.Core
                     entities[spawn.MapID] = new List<Entity>();
                 }
 
-                foreach (var entity in spawn.Spawns)
+                foreach (var entity in spawn.Spawners)
                 {
                     var monsterSpawn = entity.Basic.PickUp();
 

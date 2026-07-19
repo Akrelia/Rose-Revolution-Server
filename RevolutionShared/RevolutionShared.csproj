@@ -43,15 +43,21 @@
   <ItemGroup>
     <Compile Include="Attributes\PacketCommand.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="JSON\MapData.cs" />
     <Compile Include="JSON\SpawnData.cs" />
     <Compile Include="Packets\Commands.cs" />
     <Compile Include="Packets\IPacket.cs" />
     <Compile Include="Packets\PacketIn.cs" />
     <Compile Include="Packets\PacketOut.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rose\Data\NPC\EntityData.cs" />
+    <Compile Include="Rose\Data\NPC\MonsterData.cs" />
+    <Compile Include="Rose\Data\NPC\NPCData.cs" />
+    <Compile Include="Rose\Data\RoseEnums.cs" />
     <Compile Include="Tools.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Data\" />
     <Folder Include="Formats\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

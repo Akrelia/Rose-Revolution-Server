@@ -9,24 +9,24 @@ namespace RevolutionCore.Configurations
     /// <summary>
     /// Configuration for the world server.
     /// </summary>
-    public partial class Configuration
+    public class WorldConfiguration : ServerConfiguration
     {
         /// <summary>
         /// Server address.
         /// </summary>
-        public static string WorldServerAddress = "192.168.1.198";
+        private static string WorldServerAddress = "192.168.1.198";
         /// <summary>
         /// Server port.
         /// </summary>
-        public static short WorldServerPort = 29200;
+        private static short WorldServerPort = 29200;
         /// <summary>
         /// Server port.
         /// </summary>
-        public static short WorldServerPortIsc = 29210;
+        private static short WorldServerPortIsc = 29210;
         /// <summary>
         /// Welcome message when a player enter the world.
         /// </summary>
-        public static string WelcomeMessage = $"Welcome to Rose Revolution";
+        public string WelcomeMessage = $"Welcome to Rose Revolution";
         /// <summary>
         /// Administrator minimum right.
         /// </summary>
@@ -39,5 +39,14 @@ namespace RevolutionCore.Configurations
         /// Moderator minimum right.
         /// </summary>
         public static int ModeratorRight = 100;
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public WorldConfiguration() : base(WorldServerAddress, WorldServerPort, WorldServerPortIsc)
+        {
+
+        }
+
     }
 }

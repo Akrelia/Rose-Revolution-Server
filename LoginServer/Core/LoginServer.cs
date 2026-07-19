@@ -13,14 +13,14 @@ namespace RoseLoginServer.Core
     /// <summary>
     /// Login server.
     /// </summary>
-    public class LoginServer : RoseServer<LoginClient, LoginPacketHandler>
+    public class LoginServer : RoseServer<LoginClient, LoginPacketHandler, LoginConfiguration>
     {
         List<RoseAccount> accounts;
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        public LoginServer() : base(Configuration.LoginServerAddress, Configuration.LoginServerPort, Configuration.LoginServerAddress, Configuration.LoginServerPortIsc)
+        public LoginServer()
         {
             accounts = new List<RoseAccount>();
             packetHandler = new LoginPacketHandler(this, database);

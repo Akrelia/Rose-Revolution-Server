@@ -9,7 +9,7 @@ namespace RevolutionCore.Configurations
     /// <summary>
     /// Configuration for the login server.
     /// </summary>
-    public partial class Configuration
+    public class LoginConfiguration : ServerConfiguration
     {
         /// <summary>
         /// Server address.
@@ -23,5 +23,12 @@ namespace RevolutionCore.Configurations
         /// Server port.
         /// </summary>
         public static short LoginServerPortIsc = 29010;
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public LoginConfiguration() : base(LoginServerAddress, LoginServerPort, LoginServerPortIsc)
+        {
+        }
     }
 }

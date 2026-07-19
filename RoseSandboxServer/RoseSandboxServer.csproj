@@ -111,8 +111,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Data\Spawns\Shady Jungle.json" />
-    <None Include="Data\Spawns\Xita Refuge.json" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -125,9 +123,7 @@
       <Name>RevolutionShared</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Data\STB\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Update="Data\**\*.*">

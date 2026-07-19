@@ -20,7 +20,7 @@ namespace RoseLoginServer.Core.Handling
         /// </summary>
         /// <param name="server">Server instance.</param>
         /// <param name="database">Current database connection instance.</param>
-        public LoginPacketHandler(LoginServer server, Database database) : base(database)
+        public LoginPacketHandler(LoginServer server, Database database) : base(server.Configuration, database)
         {
             this.server = server;
         }

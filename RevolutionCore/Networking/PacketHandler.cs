@@ -22,6 +22,8 @@ namespace RevolutionCore.Networking
     /// </summary>
     public abstract partial class PacketHandler<T> where T : RoseClient 
     {
+        protected ServerConfiguration configuration;
+
         protected Dictionary<int, Func<T, PacketIn, Task>> actions;
 
         /// <summary>
@@ -33,8 +35,9 @@ namespace RevolutionCore.Networking
         /// Constructor.
         /// </summary>
         /// <param name="database">Database instance.</param>
-        public PacketHandler(Database database)
+        public PacketHandler(ServerConfiguration configuration, Database database)
         {
+            this.configuration = configuration;
             this.database = database;
             this.actions = new Dictionary<int, Func<T, PacketIn, Task>>();
 
@@ -61,7 +64,7 @@ namespace RevolutionCore.Networking
                 {
                     var size = BitConverter.ToInt32(header, 0);
 
-                    if (size <= Configuration.MaximumPacketSize)
+                    if (size <= configuration.MaximumPacketSize)
                     {
                         byte[] buffer = new byte[size + PacketIn.HeaderLength];
 

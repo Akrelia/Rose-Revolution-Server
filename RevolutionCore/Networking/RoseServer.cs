@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -20,7 +21,7 @@ namespace RevolutionCore.Networking
     /// </summary>
     /// <typeparam name="T">Type from Rose client.</typeparam>
     /// <typeparam name="P">Type from Packet Handler.</typeparam>
-    public abstract class RoseServer<T, P> : IServer<T> where T : RoseClient, new() where P : PacketHandler<T>
+    public abstract class RoseServer<T, P, C> : IServer<T> where T : RoseClient, new() where P : PacketHandler<T> where C : ServerConfiguration, new()
     {
         /// <summary>
         /// Database instance.
@@ -43,6 +44,10 @@ namespace RevolutionCore.Networking
         /// </summary>
         protected P packetHandler;
         /// <summary>
+        /// Server configuration.
+        /// </summary>
+        protected C configuration;
+        /// <summary>
         /// List of clients.
         /// </summary>
         protected List<T> clients;
@@ -64,12 +69,14 @@ namespace RevolutionCore.Networking
         /// <param name="port">Main port.</param>
         /// <param name="addressIsc">Server isc address.</param>
         /// <param name="portIsc">Isc port.</param>
-        public RoseServer(string address, short port, string addressIsc, short portIsc)
+        public RoseServer()
         {
+            configuration = ConfigurationLoader<C>.Initialize();
+
             clients = new List<T>();
             servers = new List<IscServer>();
             // database = new Database(Configuration.DatabaseDbIp, Configuration.DatabasePort, Configuration.DatabaseName, Configuration.DatabaseUser, Configuration.DatabasePassword);
-            listener = new TcpListener(IPAddress.Parse(address), port);
+            listener = new TcpListener(IPAddress.Parse(configuration.ServerAddress), configuration.ServerPort);
             tokenSource = new CancellationTokenSource();
         }
 
@@ -110,15 +117,9 @@ namespace RevolutionCore.Networking
                 {
                     var tcpClient = await listener.AcceptTcpClientAsync().ConfigureAwait(false);
 
-                    var clientID = PickClientID();
+                    var client = AcceptClient(tcpClient);
 
-                    T client = new T() { TcpClient = tcpClient, ID = clientID}; // C# can't have generic constructor with parameters
-
-                    Logger.LogImportantMessage("CONNECTION", $"Client {client} connected from {tcpClient.Client.RemoteEndPoint}");
-
-                    clients.Add(client);
-
-                    userTasks[client.ID] = UpdateUserAsync(client);
+                    InitializeClient(client);
 
                     await Task.Delay(10, cancelToken);
                 }
@@ -133,6 +134,34 @@ namespace RevolutionCore.Networking
             {
                 listener.Stop();
             }
+        }
+
+        /// <summary>
+        /// Accept an incoming client.
+        /// </summary>
+        /// <param name="tcpClient">TCP Client.</param>
+        public virtual T AcceptClient(TcpClient tcpClient)
+        {
+            var clientID = PickClientID();
+
+            T client = new T() { TcpClient = tcpClient, ID = clientID }; // C# can't have generic constructor with parameters
+
+            Logger.LogImportantMessage("CONNECTION", $"Client {client} connected from {tcpClient.Client.RemoteEndPoint}");
+
+            clients.Add(client);
+
+            userTasks[client.ID] = UpdateUserAsync(client);
+
+            return client;
+        }
+
+        /// <summary>
+        /// Initialize the client.
+        /// </summary>
+        /// <param name="client">Client.</param>
+        public virtual void InitializeClient(T client)
+        {
+
         }
 
         /// <summary>
@@ -155,14 +184,14 @@ namespace RevolutionCore.Networking
                         client.PacketCount++;
                         client.RefreshActivity();
 
-                        if (client.PacketCount >= Configuration.PacketsPerSecond)
+                        if (client.PacketCount >= configuration.PacketsPerSecond)
                         {
                             DisconnectSpammer(client);
                         }
 
                         else
                         {
-                            if (client.LastSpamCheck + Configuration.CheckPacketRate <= DateTime.Now)
+                            if (client.LastSpamCheck + configuration.CheckPacketRate <= DateTime.Now)
                             {
                                 client.ResetPacketLimitation();
                             }
@@ -171,7 +200,7 @@ namespace RevolutionCore.Networking
 
                     else
                     {
-                        if (client.LastActivity + Configuration.PingRate <= DateTime.Now)
+                        if (client.LastActivity + configuration.PingRate <= DateTime.Now)
                         {
                             if (!client.Pinged)
                             {
@@ -305,6 +334,14 @@ namespace RevolutionCore.Networking
         public Database Database
         {
             get { return database; }
+        }
+
+        /// <summary>
+        /// Get the configuration of the server.
+        /// </summary>
+        public C Configuration
+        {
+            get { return configuration; }
         }
 
         /// <summary>

@@ -9,33 +9,31 @@ namespace RevolutionCore.Configurations
     /// <summary>
     /// Configuration for the database.
     /// </summary>
-    static public partial class Configuration
+    public static class DatabaseConfiguration
     {
         /// <summary>
         /// Database's ip.
         /// </summary>
-        static public string DatabaseIP = "192.168.1.57";
-
+        public static string DatabaseAddress = "192.168.1.57";
         /// <summary>
         /// Database's port.
         /// </summary>
-        static public string DatabasePort = "5432";
-
+        public static short DatabasePort = 5432;
         /// <summary>
         /// Database's name.
         /// </summary>
-        static public string DatabaseName = "roserevolution";
+        public static string DatabaseName = "roserevolution";
         /// <summary>
         /// Database's SQL user.
         /// </summary>
-        static public string DatabaseUser = "postgres";
+        public static string DatabaseUser = "postgres";
         /// <summary>
         /// Database's password.
         /// </summary>
-        static public string DatabasePassword = "password";
+        public static string DatabasePassword = "password";
         /// <summary>
         /// Database's time out.
         /// </summary>
-        static public int DatabaseTimeOut = 5;
+        public static int DatabaseTimeOut = 5;
     }
 }

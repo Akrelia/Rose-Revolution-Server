@@ -28,7 +28,7 @@ namespace RoseSandboxServer.Core.Handling
         /// </summary>
         /// <param name="server">Server.</param>
         /// <param name="database">Database.</param>
-        public SandboxPacketHandler(SandboxServer server, Database database) : base(database)
+        public SandboxPacketHandler(SandboxServer server, Database database) : base(server.Configuration, database)
         {
             this.server = server;
         }
@@ -56,7 +56,9 @@ namespace RoseSandboxServer.Core.Handling
             client.weapon = packet.GetInt();
             client.subweapon = packet.GetInt();
 
-            await server.SendPacket(client, Packets.ConnectionResponse(client));
+            // LIRE ICI LE SPAWN POSITION
+
+            await server.SendPacket(client, Packets.ConnectionResponse(client, new Vector3(), server.Configuration.StartingMapID));
 
             await server.BroadcastPacket(Packets.PlayerConnected(client), client);
         }
@@ -98,7 +100,7 @@ namespace RoseSandboxServer.Core.Handling
         [PacketCommand(ClientCommands.GetWorld)]
         public async Task WorldRequested(SandboxClient client, PacketIn packet)
         {
-            await server.SendPacket(client, Packets.SendWorldInformations(client, server.Clients));
+            await server.SendPacket(client, Packets.SendWorldInformations(client, server.Clients,server.Configuration.MOTD));
         }
 
         /// <summary>
@@ -161,12 +163,16 @@ public static class Packets
     /// Packet - Connection Response.
     /// </summary>
     /// <returns></returns>
-    public static PacketOut ConnectionResponse(SandboxClient client)
+    public static PacketOut ConnectionResponse(SandboxClient client, Vector3 spawnPosition, int startingMapID)
     {
         PacketOut packet = new PacketOut(ServerCommands.SandboxConnectionResponse);
 
         packet.Add(client.ID);
         packet.Add(client.PlayerName);
+        packet.Add(startingMapID);
+        packet.Add(spawnPosition.x);
+        packet.Add(spawnPosition.y);
+        packet.Add(spawnPosition.z);
 
         return packet;
     }
@@ -192,11 +198,11 @@ public static class Packets
     /// </summary>
     /// <param name="clients">Clients.</param>
     /// <returns>Packet.</returns>
-    public static PacketOut SendWorldInformations(SandboxClient connecting, List<SandboxClient> clients)
+    public static PacketOut SendWorldInformations(SandboxClient connecting, List<SandboxClient> clients, string motd)
     {
         PacketOut packet = new PacketOut(ServerCommands.SendWorld);
 
-        packet.Add(Configuration.MOTD);
+        packet.Add(motd);
 
         packet.Add(clients.Count - 1);
 
@@ -314,6 +320,7 @@ public static class Packets
 
         return packet;
     }
+
     /// <summary>
     /// Ping Packet.
     /// </summary>

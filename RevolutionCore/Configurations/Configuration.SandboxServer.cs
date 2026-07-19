@@ -9,23 +9,34 @@ namespace RevolutionCore.Configurations
     /// <summary>
     /// Configuration for the sandbox server.
     /// </summary>
-    public partial class Configuration
+    public class SandboxConfiguration : ServerConfiguration
     {
         /// <summary>
         /// Server address.
         /// </summary>
-        public static string SandboxServerAddress = "192.168.1.198";
+        private static string SandboxServerAddress = "192.168.1.198";
         /// <summary>
         /// Server port.
         /// </summary>
-        public static short SandboxServerPort = 27350;
+        private static short SandboxServerPort = 27350;
         /// <summary>
         /// Server isc port.
         /// </summary>
-        public static short SandboxServerPortIsc = 30010;
+        private static short SandboxServerPortIsc = 30010;
+        /// <summary>
+        /// Starting map id.
+        /// </summary>  
+        public int StartingMapID = 61; // Check the STB or any database to find the map id you want to use as starting map.
         /// <summary>
         /// MOTD.
         /// </summary>
-        public static string MOTD = "Welcome to the Sandbox server of Rose Revolution !";
+        public string MOTD = "Welcome to the Sandbox server of Rose Revolution !";
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public SandboxConfiguration() : base(SandboxServerAddress, SandboxServerPort, SandboxServerPortIsc)
+        {
+        }
     }
 }

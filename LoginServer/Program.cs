@@ -20,8 +20,6 @@ namespace RoseLoginServer
         /// <param name="args">args.</param>
         static void Main(string[] args)
         {
-            StartUp();
-
             MainAsync().Wait();
         }
 
@@ -39,15 +37,17 @@ namespace RoseLoginServer
 
             Logger.LogImportantMessage("STARTING", "Server started and listening.");
 
-          //  await Task.WhenAll(server.ListenAsync(), server.UpdateAsync(), server.ListenIscAsync(), server.UpdateIscAsync());
+            StartUp(server.Configuration);
+
+            //  await Task.WhenAll(server.ListenAsync(), server.UpdateAsync(), server.ListenIscAsync(), server.UpdateIscAsync());
         }
 
         /// <summary>
         /// Some initialization on the start up.
         /// </summary>
-        static public void StartUp()
+        static public void StartUp(ServerConfiguration configuration)
         {
-            Console.Title = $"Login Server ({Configuration.LoginServerAddress}:{Configuration.LoginServerPort})";
+            Console.Title = $"Login Server ({configuration.ServerAddress}:{configuration.ServerPort})";
             Console.SetWindowSize(165, 50);
         }
     }

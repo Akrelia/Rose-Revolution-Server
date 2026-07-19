@@ -15,7 +15,7 @@ namespace RoseGameServer.Core
     /// <summary>
     /// Game server.
     /// </summary>
-    public class GameServer : RoseServer<GameClient, GamePacketHandler>
+    public class GameServer : RoseServer<GameClient, GamePacketHandler, GameConfiguration>
     {
         IscServer loginServer;
         List<Channel> channels;
@@ -23,11 +23,11 @@ namespace RoseGameServer.Core
         /// <summary>
         /// Constructor.
         /// </summary>
-        public GameServer() : base(Configuration.GameServerAddress, Configuration.GameServerPort, Configuration.GameServerAddress, Configuration.GameServerPortIsc)
+        public GameServer()
         {
             channels = new List<Channel>();
             packetHandler = new GamePacketHandler(this, database);
-            channels.Add(new Channel(1, 0, 0, 0, Configuration.ChannelName));
+            channels.Add(new Channel(1, 0, 0, 0, configuration.ChannelName));
         }
 
         /// <summary>
@@ -58,9 +58,9 @@ namespace RoseGameServer.Core
         /// </summary>
         public async Task ConnectToLoginServer()
         {
-            var tcpClient = new TcpClient(Configuration.LoginServerAddress, Configuration.LoginServerPortIsc);
+            //var tcpClient = new TcpClient(configuration.LoginServerAddress, configuration.LoginServerPortIsc); // TODO : use the config of the server directly ?
 
-            loginServer = new IscServer(0, tcpClient);
+       //     loginServer = new IscServer(0, tcpClient);
 
             // await packetHandler.SendIscPacket(packetHandler.SendServerPacket(), loginServer);
 

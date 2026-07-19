@@ -9,7 +9,7 @@ namespace RevolutionCore.Configurations
     /// <summary>
     /// Configuration for the game server.
     /// </summary>
-    public partial class Configuration
+    public partial class GameConfiguration : ServerConfiguration
     {
         /// <summary>
         /// Server address.
@@ -26,10 +26,17 @@ namespace RevolutionCore.Configurations
         /// <summary>
         /// Character delete delay (in seconds).
         /// </summary>
-        public static int CharacterDeleteDelay = 3600;
+        public int CharacterDeleteDelay = 3600;
         /// <summary>
         /// Name of the first channel.
         /// </summary>
-        public static string ChannelName = "Channel [1]";
+        public string ChannelName = "Channel [1]";
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public GameConfiguration() : base(GameServerAddress, GameServerPort, GameServerPortIsc)
+        {
+        }
     }
 }

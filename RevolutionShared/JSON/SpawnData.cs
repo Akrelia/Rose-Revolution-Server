@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace RevolutionShared.JSON
 {
+    /// <summary>
+    /// Monster Spawn.
+    /// </summary>
     public class MonsterSpawn
     {
         public int ID { get; set; }
@@ -13,14 +16,20 @@ namespace RevolutionShared.JSON
         public string Description { get; set; }
     }
 
+    /// <summary>
+    /// Spawn Data.
+    /// </summary>
     public class SpawnData
     {
         public int MapID { get; set; }
         public string MapName { get; set; }
-        public List<Spawn> Spawns { get; set; }
+        public List<MonsterSpawner> Spawners { get; set; }
     }
 
-    public class Settings
+    /// <summary>
+    /// Spawn Settings.
+    /// </summary>
+    public class SpawnSettings
     {
         public string Name { get; set; }
         public float MapX { get; set; }
@@ -35,9 +44,12 @@ namespace RevolutionShared.JSON
         public int TacticPoints { get; set; }
     }
 
-    public class Spawn
+    /// <summary>
+    /// Spawn.
+    /// </summary>
+    public class MonsterSpawner
     {
-        public Settings Settings { get; set; }
+        public SpawnSettings Settings { get; set; }
         public List<MonsterSpawn> Basic { get; set; }
         public List<MonsterSpawn> Tactic { get; set; }
     }
