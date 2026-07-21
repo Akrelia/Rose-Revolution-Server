@@ -11,6 +11,7 @@ namespace RevolutionShared.JSON
         public int MapID { get; set; }
         public string MapName { get; set; }
         public List<MapSpawn> Spawns { get; set; }
+        public Dictionary<int, SpawnData> spawnsData;
 
         public MapData(int mapID, string mapName, List<MapSpawn> spawns)
         {

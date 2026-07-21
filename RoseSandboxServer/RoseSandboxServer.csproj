@@ -103,6 +103,7 @@
     <Compile Include="Core\Handling\SandboxPacketHandler.cs" />
     <Compile Include="Core\SandboxDatabase.cs" />
     <Compile Include="Core\SandboxServer.cs" />
+    <Compile Include="Core\World\Map.cs" />
     <Compile Include="Data\SQL\Account.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

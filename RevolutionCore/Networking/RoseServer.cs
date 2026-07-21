@@ -217,7 +217,7 @@ namespace RevolutionCore.Networking
 
             catch (Exception ex)
             {
-                Console.WriteLine($"Error while updating user {client}: {ex.Message}");
+                Console.WriteLine($"Error while updating user {client}: {ex.Message}{Environment.NewLine}{ex.StackTrace}");
             }
 
             finally

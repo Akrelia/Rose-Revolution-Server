@@ -2,6 +2,7 @@
 using RevolutionCore.Networking;
 using RevolutionCore.SQL;
 using RevolutionShared.Attributes;
+using RevolutionShared.JSON;
 using RevolutionShared.Networking.Packets;
 using RevolutionShared.Packets;
 using RoseSandboxServer;
@@ -56,9 +57,11 @@ namespace RoseSandboxServer.Core.Handling
             client.weapon = packet.GetInt();
             client.subweapon = packet.GetInt();
 
-            // LIRE ICI LE SPAWN POSITION
+            var startingMap = server.Maps[server.Configuration.StartingMapID];
 
-            await server.SendPacket(client, Packets.ConnectionResponse(client, new Vector3(), server.Configuration.StartingMapID));
+            startingMap.AddPlayer(client);
+
+            await server.SendPacket(client, Packets.ConnectionResponse(client, startingMap.GetDefaultSpawn(), startingMap.MapData.MapID));
 
             await server.BroadcastPacket(Packets.PlayerConnected(client), client);
         }
@@ -120,7 +123,7 @@ namespace RoseSandboxServer.Core.Handling
 
             client.position = position;
 
-            var entities = server.GetNearbyEntities(client);
+            var entities = server.Maps[client.map].GetNearbyEntities(client);
 
             await server.SendPacket(client, Packets.GetSurroundings(entities));
             await server.BroadcastPacket(Packets.PlayerMoved(client, position), client);
@@ -163,16 +166,16 @@ public static class Packets
     /// Packet - Connection Response.
     /// </summary>
     /// <returns></returns>
-    public static PacketOut ConnectionResponse(SandboxClient client, Vector3 spawnPosition, int startingMapID)
+    public static PacketOut ConnectionResponse(SandboxClient client, MapSpawn spawn, int startingMapID)
     {
         PacketOut packet = new PacketOut(ServerCommands.SandboxConnectionResponse);
 
         packet.Add(client.ID);
         packet.Add(client.PlayerName);
         packet.Add(startingMapID);
-        packet.Add(spawnPosition.x);
-        packet.Add(spawnPosition.y);
-        packet.Add(spawnPosition.z);
+        packet.Add(spawn.X);
+        packet.Add(spawn.Y);
+        packet.Add(spawn.Z);
 
         return packet;
     }

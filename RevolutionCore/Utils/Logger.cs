@@ -11,6 +11,8 @@ namespace RevolutionCore.Utils
     /// </summary>
     public static class Logger
     {
+        public static int sectionLength = 50;
+
         /// <summary>
         /// Log a simple message.
         /// </summary>
@@ -120,6 +122,44 @@ namespace RevolutionCore.Utils
             Console.BackgroundColor = ConsoleColor.Magenta;
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine($"[FATAL ERROR] {text}");
+            Console.ResetColor();
+        }
+
+        /// <summary>
+        /// Begin a new section in the log.
+        /// </summary>
+        public static void BeginSection(string sectionTitle)
+        {
+            Console.ForegroundColor = ConsoleColor.Gray;
+
+            const int width = 50;
+
+            string title = $" {sectionTitle} ";
+
+            if (title.Length >= width)
+            {
+                Console.WriteLine(title);
+
+                return;
+            }
+
+            int left = (width - title.Length) / 2;
+            int right = width - title.Length - left;
+
+            Console.WriteLine(new string('-', left) + title + new string('-', right));
+
+            Console.ResetColor();
+        }
+
+        /// <summary>
+        /// End the current section.
+        /// </summary>
+        public static void EndSection()
+        {
+            Console.ForegroundColor = ConsoleColor.Gray;
+
+            Console.WriteLine(new string('-', sectionLength));
+
             Console.ResetColor();
         }
 

@@ -40,7 +40,7 @@ namespace RevolutionShared.JSON
         public float WorldZ { get; set; }
         public int Interval { get; set; }
         public int LimitCount { get; set; }
-        public int Range { get; set; }
+        public float Range { get; set; }
         public int TacticPoints { get; set; }
     }
 
