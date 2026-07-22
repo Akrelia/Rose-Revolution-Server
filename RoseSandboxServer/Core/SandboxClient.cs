@@ -1,5 +1,6 @@
 ﻿using RevolutionCore.Networking;
 using RevolutionCore.Utils;
+using RevolutionShared.Data;
 using RoseSandboxServer.Core.Data;
 using System;
 using System.Collections.Generic;
@@ -16,19 +17,8 @@ namespace RoseSandboxServer
     public class SandboxClient : RoseClient
     {
         string playerName;
-        public byte gender;
-        public byte hair;
-        public byte face;
-        public int back;
-        public int body;
-        public int gloves;
-        public int shoes;
-        public int mask;
-        public int hat;
-        public int weapon;
-        public int subweapon;
+        CharacterAppearance appearance;
         public int map;
-
         public Vector3 position;
 
         /// <summary>
@@ -45,6 +35,15 @@ namespace RoseSandboxServer
         {
             get { return playerName; }
             set { playerName = value; }
+        }
+
+        /// <summary>
+        /// Get or set the player appearance.
+        /// </summary>
+        public CharacterAppearance Appearance
+        {
+            get { return appearance; }
+            set { appearance = value; }
         }
 
         /// <summary>

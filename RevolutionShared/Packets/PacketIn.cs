@@ -495,7 +495,7 @@ namespace RevolutionShared.Networking.Packets
         /// <param name="position">Position to start.</param>
         /// <param name="count">Count.</param>
         /// <returns>Array of bytes.</returns>
-        public byte[] GetBytes(int position, int count)
+        public byte[] GetRawBytes(int position, int count)
         {
             byte[] bytes = new byte[count];
 
@@ -512,7 +512,7 @@ namespace RevolutionShared.Networking.Packets
         /// </summary>
         /// <param name="count">Count.</param>
         /// <returns>Array of bytes.</returns>
-        public byte[] GetBytes(int count)
+        public byte[] GetRawBytes(int count)
         {
             byte[] bytes = new byte[count];
 
@@ -525,6 +525,18 @@ namespace RevolutionShared.Networking.Packets
 
             return bytes;
         }
+
+        /// <summary>
+        /// Get next bytes array from the buffer.
+        /// </summary>
+        /// <returns>Bytes.</returns>
+        public byte[] GetBytes()
+        {
+            var length = GetInt();
+
+            return GetRawBytes(length);
+        }
+
 
         /// <summary>
         /// Get the next string from the buffer.
@@ -544,7 +556,7 @@ namespace RevolutionShared.Networking.Packets
         /// <returns>String.</returns>
         public string GetCountedString(int length)
         {
-            return Encoding.UTF8.GetString(GetBytes(length));
+            return Encoding.UTF8.GetString(GetRawBytes(length));
         }
 
         /// <summary>
@@ -581,7 +593,7 @@ namespace RevolutionShared.Networking.Packets
                 length = maxBytes;
             }
 
-            var bytes = GetBytes(length);
+            var bytes = GetRawBytes(length);
 
             var charCount = Encoding.UTF8.GetCharCount(bytes);
 
@@ -602,7 +614,7 @@ namespace RevolutionShared.Networking.Packets
         {
             var length = GetInt();
 
-            var bytes = GetBytes(length);
+            var bytes = GetRawBytes(length);
 
             return bytes.Deserialize<T>();
         }
@@ -626,6 +638,50 @@ namespace RevolutionShared.Networking.Packets
         }
 
         /// <summary>
+        /// Get a readable from the buffer.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T GetReadable<T>() where T : IPacketReadable, new()
+        {
+            T readable = new T();
+
+            readable.ReadFromPacket(this);
+
+            return readable;
+        }
+
+        /// <summary>
+        /// Get all readables from the buffer.
+        /// </summary>
+        /// <typeparam name="T">T.</typeparam>
+        /// <returns></returns>
+        public IEnumerable<T> GetReadables<T>() where T : IPacketReadable, new()
+        {
+            var count = GetInt();
+
+            return GetReadables<T>(count);
+        }
+
+        /// <summary>
+        /// Get a certain number of readables from the buffer.
+        /// </summary>
+        /// <typeparam name="T">T.</typeparam>
+        /// <param name="count">Count.</param>
+        /// <returns>List of T.</returns>
+        public IEnumerable<T> GetReadables<T>(int count) where T : IPacketReadable, new()
+        {
+            for (int i = 0; i < count; i++)
+            {
+                T readable = new T();
+
+                readable.ReadFromPacket(this);
+
+                yield return readable;
+            }
+        }
+
+        /// <summary>
         /// Get a string from the buffer.
         /// </summary>
         /// <param name="position">Position to start.</param>
@@ -634,7 +690,7 @@ namespace RevolutionShared.Networking.Packets
         [Obsolete("This is a legacy method, please use the new one with internal index.")]
         public string GetCleanedString(int position, int count)
         {
-            return Encoding.UTF8.GetString((GetBytes(position, count))).Split('\0')[0];
+            return Encoding.UTF8.GetString((GetRawBytes(position, count))).Split('\0')[0];
         }
 
         /// <summary>
@@ -646,7 +702,7 @@ namespace RevolutionShared.Networking.Packets
         [Obsolete("This is a legacy method, please use the new one with internal index.")]
         public string GetCleanedString(ref int position, int count)
         {
-            var value = Encoding.UTF8.GetString((GetBytes(position, count))).Split('\0')[0];
+            var value = Encoding.UTF8.GetString((GetRawBytes(position, count))).Split('\0')[0];
 
             position += count;
 

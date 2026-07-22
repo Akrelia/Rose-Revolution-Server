@@ -441,19 +441,6 @@ namespace RevolutionShared.Networking.Packets
         }
 
         /// <summary>
-        /// Add a whole object.
-        /// </summary>
-        /// <param name="obj">Object.</param>
-        public void Add(object obj)
-        {
-            var bytes = obj.Serialize();
-
-            Add(bytes.Length);
-
-            Add(bytes);
-        }
-
-        /// <summary>
         /// Add a whole collection of objects.
         /// </summary>
         /// <param name="objs">Object.</param>

@@ -1,7 +1,9 @@
 ﻿using RevolutionCore.Configurations;
 using RevolutionCore.Networking;
 using RevolutionCore.SQL;
+using RevolutionCore.Utils;
 using RevolutionShared.Attributes;
+using RevolutionShared.Data;
 using RevolutionShared.JSON;
 using RevolutionShared.Networking.Packets;
 using RevolutionShared.Packets;
@@ -45,17 +47,9 @@ namespace RoseSandboxServer.Core.Handling
         {
             client.PlayerName = packet.GetString();
 
-            client.gender = packet.GetByte();
-            client.hair = packet.GetByte();
-            client.face = packet.GetByte();
-            client.back = packet.GetInt();
-            client.body = packet.GetInt();
-            client.gloves = packet.GetInt();
-            client.shoes = packet.GetInt();
-            client.mask = packet.GetInt();
-            client.hat = packet.GetInt();
-            client.weapon = packet.GetInt();
-            client.subweapon = packet.GetInt();
+            var apparence = packet.DeserializeRecord<CharacterAppearance>();
+
+
 
             var startingMap = server.Maps[server.Configuration.StartingMapID];
 
@@ -219,17 +213,7 @@ public static class Packets
 
                 packet.Add(client.PlayerName);
 
-                packet.Add(client.gender);
-                packet.Add(client.hair);
-                packet.Add(client.face);
-                packet.Add(client.back);
-                packet.Add(client.body);
-                packet.Add(client.gloves);
-                packet.Add(client.shoes);
-                packet.Add(client.mask);
-                packet.Add(client.hat);
-                packet.Add(client.weapon);
-                packet.Add(client.subweapon);
+                packet.Add(client.Appearance);
 
                 packet.Add(client.position.x);
                 packet.Add(client.position.y);
@@ -252,17 +236,7 @@ public static class Packets
         packet.Add(client.ID);
         packet.Add(client.PlayerName);
 
-        packet.Add(client.gender);
-        packet.Add(client.hair);
-        packet.Add(client.face);
-        packet.Add(client.back);
-        packet.Add(client.body);
-        packet.Add(client.gloves);
-        packet.Add(client.shoes);
-        packet.Add(client.mask);
-        packet.Add(client.hat);
-        packet.Add(client.weapon);
-        packet.Add(client.subweapon);
+        packet.SerializeRecord(client.Appearance);
 
         return packet;
     }
