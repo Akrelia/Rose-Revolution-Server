@@ -81,8 +81,6 @@ namespace RoseSandboxServer.Core.World
         /// <returns>List of nearby entities.</returns>
         public List<Entity> GetNearbyEntities(SandboxClient client)
         {
-            var entitiesMap = entities[client.map];
-
             var nearbyEntities = new List<Entity>();
 
             for (int i = 0; i < entities.Count; i++)

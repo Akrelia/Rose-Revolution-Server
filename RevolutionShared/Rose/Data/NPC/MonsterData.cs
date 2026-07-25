@@ -17,7 +17,7 @@ namespace RevolutionShared.Rose.Data.NPC
         public int magicDefense;
         public int flee;
         public int attackSpeed;
-        public NPCAttackType attackType;
+        public AttackType attackType;
         public int AI;
         public int experience;
         public int dropTableID;

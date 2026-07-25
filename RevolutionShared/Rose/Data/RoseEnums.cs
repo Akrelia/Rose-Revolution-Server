@@ -8,46 +8,56 @@ namespace RevolutionShared.Rose.Data
 {
     public enum Job1Type
     {
-        VISITOR,
-        HAWKER,
-        SOLDIER,
-        MUSE,
-        DEALER
+        VISITOR = 0,
+        SOLDIER = 111,
+        MUSE = 211,
+        HAWKER = 311,
+        DEALER = 411
     }
 
     public enum Job2Type
     {
         NONE,
-        SCOUT,
-        RAIDER,
-        KNIGHT,
-        CHAMPION,
-        MAGE,
-        CLERIC,
-        ARTISAN,
-        BOURGEOIS
+        KNIGHT = 121,
+        CHAMPION = 122,
+        MAGE = 221,
+        CLERIC = 222,
+        SCOUT = 322,
+        RAIDER = 321,
+        BOURGEOIS = 421,
+        ARTISAN = 422
+    }
+
+    public enum StatType // Value are the same as used as required stats in the STB
+    {
+        STR = 10,
+        DEX = 11,
+        INT = 12,
+        CON = 13,
+        CHA = 14,
+        SEN = 15,
     }
 
     public enum WeaponType
     {
         EMPTY = 1,
-        OHSWORD,
-        OHAXE,
-        OHMACE,
+        OHSWORD = 211,
+        THAXE = 223,
+        OHMACE = 212,
         OHTOOL,
-        THSWORD,
-        THSPEAR,
-        DSW,
+        THSWORD = 221,
+        THSPEAR = 222,
+        DSW = 252,
         THBLUNT,
-        CANNON,
-        BOW,
-        XBOX,
-        GUN,
-        STAFF,
-        WAND,
-        BOOK,
-        KATAR,
-        SHIELD,
+        CANNON = 233,
+        BOW = 231,
+        XBOX = 271,
+        GUN = 232,
+        STAFF = 241,
+        WAND = 242,
+        BOOK = 269,
+        KATAR = 251,
+        SHIELD = 261,
     };
 
     public enum ActionType
@@ -83,6 +93,7 @@ namespace RevolutionShared.Rose.Data
 
     public enum GenderType : byte
     {
+        NONE = 0, // This is only used for genderless items / stuff
         MALE = 1,
         FEMALE = 2,
     };
@@ -118,7 +129,7 @@ namespace RevolutionShared.Rose.Data
         PAT = 14
     }
 
-    public enum NPCAttackType
+    public enum AttackType
     {
         Normal = 1,
         Magic = 2
