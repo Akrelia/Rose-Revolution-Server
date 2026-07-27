@@ -26,7 +26,7 @@ namespace RevolutionCore.Configurations
         /// <summary>
         /// Starting map id.
         /// </summary>  
-        public int StartingMapID = 42; // Check the STB or any database to find the map id you want to use as starting map.
+        public int StartingMapID = 65; // Check the STB or any database to find the map id you want to use as starting map.
         /// <summary>
         /// MOTD.
         /// </summary>

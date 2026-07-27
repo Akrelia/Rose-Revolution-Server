@@ -21,8 +21,8 @@ namespace RevolutionShared.Rose.Data.NPC
         public int AI;
         public int experience;
         public int dropTableID;
-        public int moneyDrop; // I don't think this is used at all too
-        public int drop; // Again, not sure this is used
+        public int moneyDrop;
+        public int dropChance;
         public int attackRange;
         public int attackEffectID;
         public int generalSoundEffectID;

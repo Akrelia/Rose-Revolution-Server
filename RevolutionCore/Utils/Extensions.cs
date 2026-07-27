@@ -52,4 +52,18 @@ namespace RevolutionCore.Utils
             return ReturnValue;
         }
     }
+
+    public static class RandomExtensions
+    {
+
+        /// <summary>
+        /// Get a random bool.
+        /// </summary>
+        /// <param name="random">Random.</param>
+        /// <returns></returns>
+        public static bool GetBool(this Random random)
+        {
+            return random.Next(0, 2) == 0;
+        }
+    }
 }
