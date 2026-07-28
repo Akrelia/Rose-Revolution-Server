@@ -65,5 +65,17 @@ namespace RevolutionCore.Utils
         {
             return random.Next(0, 2) == 0;
         }
+
+        /// <summary>
+        /// Get a random float.
+        /// </summary>
+        /// <param name="random">Random.</param>
+        /// <param name="min">Min.</param>
+        /// <param name="max">Max.</param>
+        /// <returns>Random Float.</returns>
+        public static float NextFloat(this Random random, float min, float max)
+        {
+            return (float)(random.NextDouble() * (max - min) + min);
+        }
     }
 }

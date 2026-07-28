@@ -9,6 +9,7 @@ using RevolutionShared.Networking.Packets;
 using RevolutionShared.Packets;
 using RoseSandboxServer;
 using RoseSandboxServer.Core.Data;
+using RoseSandboxServer.Core.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -45,17 +46,19 @@ namespace RoseSandboxServer.Core.Handling
         [PacketCommand(ClientCommands.ConnectSandbox)]
         public async Task HandleConnection(SandboxClient client, PacketIn packet)
         {
-            client.PlayerName = packet.GetString();
+            var playerName = packet.GetString();
+
+            client.Account = new Account(playerName, AccountRight.GameMaster); // Everyone is a GM in the Sandbox.
 
             var apparence = packet.DeserializeRecord<CharacterAppearance>();
-
-
 
             var startingMap = server.Maps[server.Configuration.StartingMapID];
 
             startingMap.AddPlayer(client);
 
-            await server.SendPacket(client, Packets.ConnectionResponse(client, startingMap.GetDefaultSpawn(), startingMap.MapData.MapID));
+            var entities = server.Maps[client.map].GetNearbyEntities(client);
+
+            await server.SendPacket(client, Packets.ConnectionResponse(client, startingMap.GetDefaultSpawn(), startingMap.MapData.ID, entities));
 
             await server.BroadcastPacket(Packets.PlayerConnected(client), client);
         }
@@ -97,11 +100,11 @@ namespace RoseSandboxServer.Core.Handling
         [PacketCommand(ClientCommands.GetWorld)]
         public async Task WorldRequested(SandboxClient client, PacketIn packet)
         {
-            await server.SendPacket(client, Packets.SendWorldInformations(client, server.Clients,server.Configuration.MOTD));
+            await server.SendPacket(client, Packets.SendWorldInformations(client, server.Clients, server.Configuration.MOTD));
         }
 
         /// <summary>
-        /// Player requesting the world.
+        /// Player moving.
         /// </summary>
         /// <param name="client">Client.</param>
         /// <param name="packet">Packet.</param>
@@ -109,18 +112,52 @@ namespace RoseSandboxServer.Core.Handling
         [PacketCommand(ClientCommands.Move)]
         public async Task PlayerMoved(SandboxClient client, PacketIn packet)
         {
-            var x = packet.GetFloat();
-            var y = packet.GetFloat();
-            var z = packet.GetFloat();
+            var position = new WorldPosition();
 
-            Vector3 position = new Vector3(x, y, z);
+            position.ReadFromPacket(packet);
 
             client.position = position;
 
-            var entities = server.Maps[client.map].GetNearbyEntities(client);
+            // var entities = server.Maps[client.map].GetNearbyEntities(client);
 
-            await server.SendPacket(client, Packets.GetSurroundings(entities));
+            var entities = new List<Entity>();
+
+            await server.SendPacket(client, Packets.AddEntities(entities));
             await server.BroadcastPacket(Packets.PlayerMoved(client, position), client);
+        }
+
+        /// <summary>
+        /// Player executing GM command.
+        /// </summary>
+        /// <param name="client">Client.</param>
+        /// <param name="packet">Packet.</param>
+        /// <returns>Task.</returns>
+        [PacketCommand(ClientCommands.GMCommandSpawnMonster)]
+        public async Task GMSpawnMonster(SandboxClient client, PacketIn packet)
+        {
+            var monsterID = packet.GetInt();
+            var amount = packet.GetShort();
+
+            if (amount > 100)
+            {
+                amount = 100;
+            }
+
+            var map = server.Maps[client.map];
+
+            var spawnedEntities = new List<Entity>();
+
+            for (int i = 0; i < amount; i++)
+            {
+                var randomPosition = map.GetRandomPointAround(10, client.position);
+
+                var entity = map.SpawnEntityByID(server.GameData.enemies[monsterID], randomPosition);
+
+                spawnedEntities.Add(entity);
+            }
+
+            await server.BroadcastPacket(Packets.GMCommandExecuted(client, $"Monster Spawn {monsterID} x {amount}"));
+            await server.BroadcastPacket(Packets.AddEntities(spawnedEntities));
         }
 
         /// <summary>
@@ -160,16 +197,19 @@ public static class Packets
     /// Packet - Connection Response.
     /// </summary>
     /// <returns></returns>
-    public static PacketOut ConnectionResponse(SandboxClient client, MapSpawn spawn, int startingMapID)
+    public static PacketOut ConnectionResponse(SandboxClient client, MapSpawn spawn, int startingMapID, List<Entity> entities)
     {
         PacketOut packet = new PacketOut(ServerCommands.SandboxConnectionResponse);
 
         packet.Add(client.ID);
-        packet.Add(client.PlayerName);
+        packet.Add(client.Account.username);
         packet.Add(startingMapID);
+
         packet.Add(spawn.X);
         packet.Add(spawn.Y);
         packet.Add(spawn.Z);
+
+        packet.Add(entities);
 
         return packet;
     }
@@ -211,7 +251,7 @@ public static class Packets
 
                 packet.Add(client.ID);
 
-                packet.Add(client.PlayerName);
+                packet.Add(client.Account.username);
 
                 packet.Add(client.Appearance);
 
@@ -234,7 +274,7 @@ public static class Packets
         PacketOut packet = new PacketOut(ServerCommands.PlayerConnected);
 
         packet.Add(client.ID);
-        packet.Add(client.PlayerName);
+        packet.Add(client.Account.username);
 
         packet.SerializeRecord(client.Appearance);
 
@@ -260,7 +300,7 @@ public static class Packets
     /// </summary>
     /// <param name="client">Client.</param>
     /// <returns>Packet.</returns>
-    public static PacketOut PlayerMoved(SandboxClient client, Vector3 position)
+    public static PacketOut PlayerMoved(SandboxClient client, WorldPosition position)
     {
         PacketOut packet = new PacketOut(ServerCommands.PlayerMoved);
 
@@ -274,26 +314,30 @@ public static class Packets
     }
 
     /// <summary>
-    /// Packet - Get Surroundings.
+    /// Packet - Add Entities.
     /// </summary>
     /// <param name="entities">Entities around.</param>
     /// <returns>Packet.</returns>
-    public static PacketOut GetSurroundings(List<Entity> entities)
+    public static PacketOut AddEntities(List<Entity> entities)
     {
         PacketOut packet = new PacketOut(ServerCommands.AddEntities);
 
-        packet.Add(entities.Count);
+        packet.Add(entities);
 
-        for (int i = 0; i < entities.Count; i++)
-        {
-            var entity = entities[i];
+        return packet;
+    }
 
-            packet.Add(entity.id);
-            packet.Add(entity.dataId);
-            packet.Add(entity.position.x * 100F);
-            packet.Add(entity.position.y);
-            packet.Add(entity.position.z * 100F);
-        }
+    /// <summary>
+    /// Packet - GM Command Executed.
+    /// </summary>
+    /// <param name="commandName">Name.</param>
+    /// <returns>Packet.</returns>
+    public static PacketOut GMCommandExecuted(SandboxClient author, string commandName)
+    {
+        PacketOut packet = new PacketOut(ServerCommands.GMCommandExecuted);
+
+        packet.Add(author.Account.username);
+        packet.Add(commandName);
 
         return packet;
     }

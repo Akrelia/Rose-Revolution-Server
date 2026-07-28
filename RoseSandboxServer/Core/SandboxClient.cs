@@ -16,25 +16,15 @@ namespace RoseSandboxServer
     /// </summary>
     public class SandboxClient : RoseClient
     {
-        string playerName;
-        CharacterAppearance appearance;
         public int map;
-        public Vector3 position;
+        public WorldPosition position;
+        CharacterAppearance appearance;
 
         /// <summary>
         /// Parameterless Constructor.
         /// </summary>
         public SandboxClient() : base()
         {
-        }
-
-        /// <summary>
-        /// Get or the player name.
-        /// </summary>
-        public string PlayerName
-        {
-            get { return playerName; }
-            set { playerName = value; }
         }
 
         /// <summary>
@@ -52,7 +42,7 @@ namespace RoseSandboxServer
         /// <returns>Object in string format.</returns>
         public override string ToString()
         {
-            return $"{(string.IsNullOrEmpty(playerName) ? base.ToString() : playerName)}";
+            return account != null ? account.username : base.ToString();
         }
     }
 }

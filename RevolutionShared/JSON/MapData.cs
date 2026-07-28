@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RevolutionShared.Rose.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace RevolutionShared.JSON
 {
-    public class MapData
+    public class MapData : IData
     {
-        public int MapID { get; set; }
+        public int ID { get; set; }
         public string MapName { get; set; }
+        public SpawnData spawnData;
         public List<MapSpawn> Spawns { get; set; }
-        public Dictionary<int, SpawnData> spawnsData;
 
         public MapData(int mapID, string mapName, List<MapSpawn> spawns)
         {
-            MapID = mapID;
+            ID = mapID;
             MapName = mapName;
             Spawns = spawns;
         }
@@ -25,7 +26,7 @@ namespace RevolutionShared.JSON
     {
         public string Name { get; set; }
         public float X { get; set; }
-        public float Y { get; set; }
+        public float Y { get; set; } // Turn to WorldPosition
         public float Z { get; set; }
 
         public MapSpawn(string name, float x, float y, float z)

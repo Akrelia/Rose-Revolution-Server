@@ -18,17 +18,9 @@ namespace RevolutionCore.Networking
         /// </summary>
         protected bool pinged;
         /// <summary>
-        /// Right.
-        /// </summary>
-        protected short right;
-        /// <summary>
         /// Connect attempts;
         /// </summary>
         protected byte connectAttempts;
-        /// <summary>
-        /// Account name.
-        /// </summary>
-        protected string accountName;
         /// <summary>
         /// Packet count.
         /// </summary>
@@ -45,6 +37,10 @@ namespace RevolutionCore.Networking
         /// Last spam check.
         /// </summary>
         protected DateTime lastSpamCheck;
+        /// <summary>
+        /// Account.
+        /// </summary>
+        protected Account account;
 
         /// <summary>
         /// Parameterless constructor.
@@ -111,24 +107,6 @@ namespace RevolutionCore.Networking
         }
 
         /// <summary>
-        /// Get or set the right.
-        /// </summary>
-        public short Right
-        {
-            get { return right; }
-            set { right = value; }
-        }
-
-        /// <summary>
-        /// Get or set the account name.
-        /// </summary>
-        public string AccountName
-        {
-            get { return accountName; }
-            set { accountName = value; }
-        }
-
-        /// <summary>
         /// Get the IP of the client.
         /// </summary>
         public string IP
@@ -162,21 +140,30 @@ namespace RevolutionCore.Networking
         }
 
         /// <summary>
-        /// String format.
-        /// </summary>
-        /// <returns>Object in string format.</returns>
-        public override string ToString()
-        {
-            return $"({ID}:{IP})";
-        }
-
-        /// <summary>
         /// Get or set the tcp client of the client.
         /// </summary>
         public TcpClient TcpClient
         {
             get { return tcpClient; }
             set { tcpClient = value; }
+        }
+
+        /// <summary>
+        /// Get or set the account of the client.
+        /// </summary>
+        public Account Account
+        {
+            get { return account; }
+            set { account = value; }
+        }
+
+        /// <summary>
+        /// String format.
+        /// </summary>
+        /// <returns>Object in string format.</returns>
+        public override string ToString()
+        {
+            return $"({ID}:{IP})";
         }
     }
 }

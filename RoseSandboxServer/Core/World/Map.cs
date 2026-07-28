@@ -1,6 +1,10 @@
-﻿using RevolutionCore.Utils;
+﻿using RevolutionCore.Services;
+using RevolutionCore.Utils;
+using RevolutionShared.Data;
 using RevolutionShared.JSON;
+using RevolutionShared.Rose.Data.NPC;
 using RoseSandboxServer.Core.Data;
+using RoseSandboxServer.Core.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,11 +18,10 @@ namespace RoseSandboxServer.Core.World
     /// </summary>
     public class Map
     {
+        int currentEntityID;
         MapData mapData;
         Dictionary<int, Entity> entities;
         public Dictionary<long, SandboxClient> players;
-
-        int currentEntityID;
 
         /// <summary>
         /// Constructor.
@@ -44,18 +47,32 @@ namespace RoseSandboxServer.Core.World
         }
 
         /// <summary>
-        /// Spawn an entity in a specific map.
+        /// Spawn entity by ID.
         /// </summary>
-        /// <param name="mapId">Map id.</param>
-        /// <param name="entity">Entity. to spawn</param>
-        /// <param name="position">Initial position.</param>
-        public void SpawnEntity(int mapId, Entity entity, Vector3 position)
+        /// <param name="dataID">Data ID.</param>
+        /// <param name="position">Position.</param>
+        public Entity SpawnEntityByID(EnemyData data, WorldPosition position)
         {
+            var entityID = GetNewEntityId();
+
+            Enemy entity = new Enemy(entityID, data);
+
             entity.position = position;
 
-            entity.id = GetNewEntityId();
+            entities.Add(entityID, entity);
 
-            entities.Add(entity.id, entity);
+            return entity;
+        }
+
+        /// <summary>
+        /// Get random point around.
+        /// </summary>
+        /// <param name="range">Range.</param>
+        /// <param name="position">Position.</param>
+        /// <returns>Position.</returns>
+        public WorldPosition GetRandomPointAround(float range, WorldPosition position)
+        {
+            return new WorldPosition(position.x + Tools.Random.NextFloat(-range, range), position.y, position.z + Tools.Random.NextFloat(-range, range)); // Square, for efficiency
         }
 
         /// <summary>
@@ -85,7 +102,7 @@ namespace RoseSandboxServer.Core.World
 
             for (int i = 0; i < entities.Count; i++)
             {
-                if (Vector3.Distance(client.position, entities[i].position) <= 10)
+                if (WorldPosition.Distance(client.position, entities[i].position) <= 10)
                 {
                     nearbyEntities.Add(entities[i]);
                 }
@@ -107,7 +124,7 @@ namespace RoseSandboxServer.Core.World
 
             else
             {
-                Logger.LogImportantMessage($"Player {client.PlayerName} already exists in map {mapData.MapName}");
+                Logger.LogImportantMessage($"Player {client} already exists in map {mapData.MapName}");
             }
         }
 
@@ -124,7 +141,7 @@ namespace RoseSandboxServer.Core.World
 
             else
             {
-                Logger.LogImportantMessage($"Player {client.PlayerName} does not exist in map {mapData.MapName}");
+                Logger.LogImportantMessage($"Player {client} does not exist in map {mapData.MapName}");
             }
         }
 
@@ -158,7 +175,7 @@ namespace RoseSandboxServer.Core.World
         /// <returns>String format.</returns>
         public override string ToString()
         {
-            return $"[{mapData.MapID}] {mapData.MapName}";
+            return $"[{mapData.ID}] {mapData.MapName}";
         }
     }
 }

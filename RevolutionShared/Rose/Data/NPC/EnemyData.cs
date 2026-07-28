@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace RevolutionShared.Rose.Data.NPC
 {
     [Serializable]
-    public class MonsterData : EntityData
+    public class EnemyData : EntityData
     {
         public int level;
         public int healthPoints;

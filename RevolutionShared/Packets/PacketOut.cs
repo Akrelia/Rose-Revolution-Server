@@ -441,20 +441,52 @@ namespace RevolutionShared.Networking.Packets
         }
 
         /// <summary>
-        /// Add a whole collection of objects.
+        /// Add a writable.
         /// </summary>
-        /// <param name="objs">Object.</param>
-        public void Add(IEnumerable<object> objs)
+        /// <param name="writable">Writable.</param>
+        public void Add(IPacketWritable writable)
         {
-            Add(objs.Count());
+            writable.WriteToPacket(this);
+        }
 
-            for (int i = 0; i < objs.Count(); i++)
+        /// <summary>
+        /// Add a writable struct object.
+        /// </summary>
+        /// <typeparam name="T">T</typeparam>
+        /// <param name="writables">Writables.</param>
+        public void Add<T>(IList<T> writables) where T : IPacketWritable
+        {
+            Add(writables.Count);
+
+            for (int i = 0; i < writables.Count; i++)
             {
-                var bytes = objs.Serialize();
+                var item = writables[i];
 
-                Add(bytes.Length);
+                item.WriteToPacket(this);
+            }
+        }
 
-                Add(bytes);
+        /// <summary>
+        /// Add a writable class object.
+        /// </summary>
+        /// <param name="writables">Writables.</param>
+        public void Add<T>(T[] writables) where T : IPacketWritable
+        {
+            Add(writables.Length);
+
+            for (int i = 0; i < writables.Length; i++)
+            {
+                writables[i].WriteToPacket(this);
+            }
+        }
+
+        public void Add<T, V>(Dictionary<T, V> values) where V : IPacketWritable
+        {
+            Add(values.Count);
+
+            foreach (var writable in values)
+            {
+                writable.Value.WriteToPacket(this);
             }
         }
 

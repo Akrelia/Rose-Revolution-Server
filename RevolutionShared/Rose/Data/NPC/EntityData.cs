@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace RevolutionShared.Rose.Data.NPC
 {
     [Serializable]
-    public class EntityData
+    public class EntityData : IData
     {
         public int id;
         public string displayName;
@@ -20,5 +20,7 @@ namespace RevolutionShared.Rose.Data.NPC
         public int characterType; // TODO : Turn this into a enum
         public int localizationID; // used to be a key string, but we will do our own localization system
         public int glowColor;
+    
+        public int ID { get { return id; } set { id = value; } }
     }
 }

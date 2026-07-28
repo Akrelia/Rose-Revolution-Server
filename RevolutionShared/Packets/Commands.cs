@@ -14,13 +14,13 @@ namespace RevolutionShared.Packets
         Ping = 0x998,
         Pong = 0x999,
         ConnectSandbox = 0x1000,
-        SpawnMonster = 0x1001,
-        SendNormalChat = 0x1002,
+        SendNormalChat = 0x1001,
         SendShout = 0x1002,
         DisconnectSandbox = 0x1003,
         GetWorld = 0x1004,
         Move = 0x1005,
-        Equip = 0x1006
+        Equip = 0x1006,
+        GMCommandSpawnMonster = 0x4500
     }
 
     /// <summary>
@@ -37,6 +37,7 @@ namespace RevolutionShared.Packets
         PlayerDisconnected = 0x1004,
         SendWorld = 0x1005,
         PlayerMoved = 0x1006,
-        PlayerUpdate = 0x1007
+        PlayerUpdate = 0x1007,
+        GMCommandExecuted = 0x2000
     }
 }

@@ -28,6 +28,14 @@ namespace RevolutionShared.Rose.Data
         ARTISAN = 422
     }
 
+    public enum EntityType
+    {
+        Player = 1,
+        Enemy = 2,
+        Summon = 3,
+        NPC = 4
+    }
+
     public enum StatType // Value are the same as used as required stats in the STB
     {
         STR = 10,

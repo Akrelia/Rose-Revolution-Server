@@ -26,7 +26,11 @@ namespace RevolutionCore.Configurations
         /// <summary>
         /// Starting map id.
         /// </summary>  
-        public int StartingMapID = 65; // Check the STB or any database to find the map id you want to use as starting map.
+        public int StartingMapID = 65;
+        /// <summary>
+        /// Max monster spawn amount.
+        /// </summary>
+        public int MaxMonsterSpawnAmount = 100;
         /// <summary>
         /// MOTD.
         /// </summary>

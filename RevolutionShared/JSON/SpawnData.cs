@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RevolutionShared.Rose.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ namespace RevolutionShared.JSON
     /// <summary>
     /// Monster Spawn.
     /// </summary>
-    public class MonsterSpawn
+    public class EnemySpawn
     {
         public int ID { get; set; }
         public int Count { get; set; }
@@ -19,11 +20,11 @@ namespace RevolutionShared.JSON
     /// <summary>
     /// Spawn Data.
     /// </summary>
-    public class SpawnData
+    public class SpawnData : IData
     {
-        public int MapID { get; set; }
+        public int ID { get; set; }
         public string MapName { get; set; }
-        public List<MonsterSpawner> Spawners { get; set; }
+        public List<EnemySpawner> Spawners { get; set; }
     }
 
     /// <summary>
@@ -47,10 +48,10 @@ namespace RevolutionShared.JSON
     /// <summary>
     /// Spawn.
     /// </summary>
-    public class MonsterSpawner
+    public class EnemySpawner
     {
         public SpawnSettings Settings { get; set; }
-        public List<MonsterSpawn> Basic { get; set; }
-        public List<MonsterSpawn> Tactic { get; set; }
+        public List<EnemySpawn> Basic { get; set; }
+        public List<EnemySpawn> Tactic { get; set; }
     }
 }

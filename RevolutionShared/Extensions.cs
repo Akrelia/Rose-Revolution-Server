@@ -1,4 +1,6 @@
 ﻿using MessagePack;
+using MessagePack.Resolvers;
+using RevolutionShared.Data;
 using RevolutionShared.Networking.Packets;
 using System;
 using System.Collections.Generic;
@@ -91,6 +93,21 @@ namespace RevolutionCore.Utils
         }
 
         /// <summary>
+        /// Serialize an object into a packet.
+        /// </summary>
+        /// <typeparam name="T">T.</typeparam>
+        /// <param name="packet">Packet.</param>
+        /// <param name="obj">Obj.</param>
+        public static void SerializeRecordNew<T>(this PacketOut packet, T obj) where T : SerializableRecord
+        {
+            byte[] data = MessagePackSerializer.Serialize(obj, MessagePackConfig.Options);
+
+            packet.Add(data.Length);
+
+            packet.Add(data);
+        }
+
+        /// <summary>
         /// Deserialize an object from a packet.
         /// </summary>
         /// <typeparam name="T">Type of object.</typeparam>
@@ -101,6 +118,13 @@ namespace RevolutionCore.Utils
             var data = packet.GetBytes();
 
             return MessagePackSerializer.Deserialize<T>(data, MessagePack.Resolvers.ContractlessStandardResolver.Options);
+        }
+
+        public static T DeserializeRecordNew<T>(this PacketIn packet)
+        {
+            var data = packet.GetBytes();
+
+            return MessagePackSerializer.Deserialize<T>(data, MessagePackConfig.Options);
         }
 
         /// <summary>
@@ -134,35 +158,6 @@ namespace RevolutionCore.Utils
 
             return list;
         }
-
-        /// <summary>
-        /// Get a creatable from the buffer.
-        /// </summary>
-        /// <typeparam name="T">Type.</typeparam>
-        /// <returns>Creatable.</returns>
-        public static T GetCreatable<T>(this PacketIn packet) where T : IPacketCreatable<T>
-        {
-            return packet.DeserializeRecord<T>();
-        }
-
-        /// <summary>
-        /// Get all creatables from the buffer.
-        /// </summary>
-        /// <typeparam name="T">T.</typeparam>
-        /// <returns>Creatables.</returns>
-        public static IEnumerable<T> GetCreatables<T>(this PacketIn packet) where T : IPacketCreatable<T>
-        {
-            int count = packet.GetInt();
-
-            var list = new List<T>(count);
-
-            for (int i = 0; i < count; i++)
-            {
-                list.Add(packet.DeserializeRecord<T>());
-            }
-
-            return list;
-        }
     }
 
     /// <summary>
@@ -182,6 +177,17 @@ namespace RevolutionCore.Utils
         }
 
         /// <summary>
+        /// Add a creatable to the packet.
+        /// </summary>
+        /// <typeparam name="T">T.</typeparam>
+        /// <param name="packet">Packet.</param>
+        /// <param name="creatable">Creatable to add.</param>
+        public static void AddNew<T>(this PacketOut packet, T creatable) where T : SerializableRecord
+        {
+            packet.SerializeRecordNew(creatable);
+        }
+
+        /// <summary>
         /// Get a creatable from the packet.
         /// </summary>
         /// <typeparam name="T">Type.</typeparam>
@@ -191,5 +197,28 @@ namespace RevolutionCore.Utils
         {
             return packet.DeserializeRecord<T>();
         }
+
+        /// <summary>
+        /// Get new.
+        /// </summary>
+        /// <typeparam name="T">T.</typeparam>
+        /// <param name="packet">Packet.</param>
+        /// <returns></returns>
+        public static T GetNew<T>(this PacketIn packet) where T : SerializableRecord
+        {
+            return packet.DeserializeRecordNew<T>();
+        }
     }
+}
+
+
+public static class MessagePackConfig
+{
+    public static readonly MessagePackSerializerOptions Options =
+        MessagePackSerializerOptions.Standard.WithResolver(
+            CompositeResolver.Create(
+                AttributeFormatterResolver.Instance,
+                ContractlessStandardResolver.Instance
+            )
+        );
 }

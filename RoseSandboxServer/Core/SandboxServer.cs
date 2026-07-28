@@ -2,10 +2,13 @@
 using Newtonsoft.Json;
 using RevolutionCore.Configurations;
 using RevolutionCore.Networking;
+using RevolutionCore.Services;
 using RevolutionCore.Utils;
+using RevolutionShared.Data;
 using RevolutionShared.JSON;
 using RevolutionShared.Networking.Packets;
 using RoseSandboxServer.Core.Data;
+using RoseSandboxServer.Core.Data.Entities;
 using RoseSandboxServer.Core.Handling;
 using RoseSandboxServer.Core.World;
 using System;
@@ -25,14 +28,17 @@ namespace RoseSandboxServer.Core
     /// </summary>
     public partial class SandboxServer : RoseServer<SandboxClient, SandboxPacketHandler, SandboxConfiguration>
     {
-        SandboxDatabase db = new SandboxDatabase();
         Dictionary<int, Map> maps;
+        GameData gameData;
+        SandboxDatabase db = new SandboxDatabase();
 
         /// <summary>
         /// Constructor.
         /// </summary>
         public SandboxServer()
         {
+            gameData = new GameData();
+
             packetHandler = new SandboxPacketHandler(this, database);
 
             maps = new Dictionary<int, Map>();
@@ -49,6 +55,9 @@ namespace RoseSandboxServer.Core
             base.InitializeClient(client);
 
             client.map = configuration.StartingMapID;
+
+            var spawn = maps[client.map].GetDefaultSpawn();
+            client.position = new WorldPosition(spawn.X, spawn.Y, spawn.Z);
         }
 
         /// <summary>
@@ -60,50 +69,44 @@ namespace RoseSandboxServer.Core
 
             string dataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, configuration.GameDataPath);
 
-            if (Directory.Exists(dataPath))
+            gameData.Load(dataPath, configuration);
+
+            foreach (var mapData in gameData.maps.Values)
             {
-                var mapsData = LoadMaps(Path.Combine(dataPath, "Maps"));
-                var spawnsData = LoadSpawns(Path.Combine(dataPath, "Spawns"));
+                var map = new Map(mapData);
 
-                Logger.LogImportantMessage($"Maps loaded : {mapsData.Count} ");
-                Logger.LogImportantMessage($"Spawns loaded : {spawnsData.Count} ");
+                maps.Add(mapData.ID, map);
+            }
 
-                foreach (var mapData in mapsData.Values)
+            foreach (var map in maps.Values)
+            {
+                var spawnData = gameData.GetSpawner(map.MapData.ID);
+
+                if (spawnData != null)
                 {
-                    var map = new Map(mapData);
-
-                    maps.Add(mapData.MapID, map);
-                }
-
-                foreach (var spawn in spawnsData.Values)
-                {
-                    var map = maps[spawn.MapID];
-
-                    foreach (var entity in spawn.Spawners)
+                    foreach (var spawner in map.MapData.spawnData.Spawners)
                     {
-                        var monsterSpawn = entity.Basic.PickUp();
+                        var spawn = spawner.Basic.PickUp();
 
-                        for (int i = 0; i < monsterSpawn.Count; i++)
+                        for (int i = 0; i < spawn.Count; i++)
                         {
-                            var worldPosition = new Vector3(entity.Settings.WorldX, entity.Settings.WorldZ, entity.Settings.WorldY);
+                            var worldPosition = new WorldPosition(spawner.Settings.WorldX, spawner.Settings.WorldZ, spawner.Settings.WorldY);
 
-                            var position = RandomPosition(worldPosition, entity.Settings.Range);
+                            var position = map.GetRandomPointAround(spawner.Settings.Range, worldPosition);
 
-                            var monster = new Entity(monsterSpawn.ID, monsterSpawn.ID);
+                            var enemyData = gameData.GetEnemy(spawn.ID);
 
-                            map.SpawnEntity(spawn.MapID, monster, worldPosition);
+                            if (enemyData != null)
+                            {
+                                map.SpawnEntityByID(enemyData, worldPosition);
+                            }
                         }
                     }
                 }
-
-                Logger.LogImportantMessage($"Maps created : {maps.Count} ");
-                Logger.LogImportantMessage($"Monsters spawned : {maps.Values.Sum(map => map.Entities.Count)}");
             }
 
-            else
-            {
-                Logger.LogWarning($"No data folder found (Excepted folder named {configuration.GameDataPath}! The server will not load any data it needs to work");
-            }
+            Logger.LogImportantMessage($"Maps created : {maps.Count} ");
+            Logger.LogImportantMessage($"Monsters spawned : {maps.Values.Sum(map => map.Entities.Count)}");
 
             Logger.EndSection();
         }
@@ -127,7 +130,7 @@ namespace RoseSandboxServer.Core
 
                 else
                 {
-                    Logger.LogImportantMessage($"Player {client.PlayerName} does not exist in map {map.MapData.MapName}");
+                    Logger.LogImportantMessage($"Player {client.Account.username} does not exist in map {map.MapData.MapName}");
                 }
             }
 
@@ -138,70 +141,11 @@ namespace RoseSandboxServer.Core
         }
 
         /// <summary>
-        /// Load all maps from the data folder.
+        /// Get the game data.
         /// </summary>
-        /// <param name="dataPath">Data path.</param>
-        /// <returns>Maps data.</returns>
-        private Dictionary<int, MapData> LoadMaps(string dataPath)
+        public GameData GameData
         {
-            var maps = new Dictionary<int, MapData>();
-
-            var files = Directory.GetFiles(dataPath, "*.json");
-
-            foreach (var file in files)
-            {
-                try
-                {
-                    string json = File.ReadAllText(file);
-
-                    var mapData = JsonConvert.DeserializeObject<MapData>(json);
-
-                    if (mapData != null)
-                    {
-                        maps.Add(mapData.MapID, mapData);
-                    }
-                }
-
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"The file {file} doesn't seems to be a map data file : {ex.Message}");
-                }
-            }
-            return maps;
-        }
-
-        /// <summary>
-        /// Load all spawns from the maps.
-        /// </summary>
-        /// <param name="dataPath">Data path.</param>
-        /// <returns>Spawns.</returns>
-        private Dictionary<int, SpawnData> LoadSpawns(string dataPath)
-        {
-            var spawns = new Dictionary<int, SpawnData>();
-
-            var files = Directory.GetFiles(dataPath, "*.json");
-
-            foreach (var file in files)
-            {
-                try
-                {
-                    string json = File.ReadAllText(file);
-
-                    var spawnData = JsonConvert.DeserializeObject<SpawnData>(json);
-
-                    if (spawnData != null)
-                    {
-                        spawns.Add(spawnData.MapID, spawnData);
-                    }
-                }
-
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"The file {file} doesn't seems to be a spawn data file : {ex.Message}");
-                }
-            }
-
-            return spawns;
+            get { return gameData; }
         }
 
         /// <summary>

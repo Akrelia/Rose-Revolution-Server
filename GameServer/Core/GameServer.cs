@@ -91,7 +91,7 @@ namespace RoseGameServer.Core
         {
             for (int i = 0; i < clients.Count; i++)
             {
-                if (clients[i].AccountName == accountName)
+                if (clients[i].Account.username == accountName)
                 {
                     return clients[i];
                 }
