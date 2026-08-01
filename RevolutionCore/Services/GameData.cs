@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using RevolutionCore.Configurations;
 using RevolutionCore.Utils;
-using RevolutionShared.JSON;
 using RevolutionShared.Rose.Data;
 using RevolutionShared.Rose.Data.NPC;
 using System;
@@ -50,7 +49,7 @@ namespace RevolutionCore.Services
 
                     else
                     {
-                        Logger.LogWarning("Missing spawns for map : " + map.MapName);
+                        Logger.LogWarning("Missing spawns for map : " + map.mapName);
                     }
                 }
 
@@ -65,21 +64,43 @@ namespace RevolutionCore.Services
             }
         }
 
+        /// <summary>
+        /// Get enemy data.
+        /// </summary>
+        /// <param name="id">ID.</param>
+        /// <returns>Enemy data.</returns>
         public EnemyData GetEnemy(int id)
         {
             return GetData(enemies, id);
         }
 
+        /// <summary>
+        /// Get map data.
+        /// </summary>
+        /// <param name="id">ID.</param>
+        /// <returns>Map data.</returns>
         public MapData GetMap(int id)
         {
             return GetData(maps, id);
         }
 
+        /// <summary>
+        /// Get spawn data.
+        /// </summary>
+        /// <param name="id">ID.</param>
+        /// <returns>Spawn data.</returns>
         public SpawnData GetSpawner(int id)
         {
             return GetData(spawners, id);
         }
 
+        /// <summary>
+        /// Get any data.
+        /// </summary>
+        /// <typeparam name="T">Type of data.</typeparam>
+        /// <param name="dictionary">Dictionary.</param>
+        /// <param name="id">ID.</param>
+        /// <returns>Data.</returns>
         public T GetData<T>(Dictionary<int, T> dictionary, int id) where T : class, IData
         {
             if (dictionary.TryGetValue(id, out var data))

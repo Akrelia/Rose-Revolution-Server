@@ -1,15 +1,10 @@
-﻿using RevolutionCore.Services;
-using RevolutionCore.Utils;
+﻿using RevolutionCore.Utils;
 using RevolutionShared.Data;
-using RevolutionShared.JSON;
+using RevolutionShared.Rose.Data;
 using RevolutionShared.Rose.Data.NPC;
-using RoseSandboxServer.Core.Data;
 using RoseSandboxServer.Core.Data.Entities;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RoseSandboxServer.Core.World
 {
@@ -41,7 +36,7 @@ namespace RoseSandboxServer.Core.World
         /// <returns></returns>
         public MapSpawn GetDefaultSpawn()
         {
-            var spawn = mapData.Spawns.FirstOrDefault(e => e.Name == "start") ?? mapData.Spawns.FirstOrDefault(e => e.Name == "restore"); // TODO : Avoid those legacy name to something better, like an enum
+            var spawn = mapData.spawns.FirstOrDefault(e => e.name == "start") ?? mapData.spawns.FirstOrDefault(e => e.name == "restore"); // TODO : Avoid those legacy name to something better, like an enum
 
             return spawn;
         }
@@ -102,7 +97,7 @@ namespace RoseSandboxServer.Core.World
 
             for (int i = 0; i < entities.Count; i++)
             {
-                if (WorldPosition.Distance(client.position, entities[i].position) <= 10)
+                if (WorldPosition.Distance(client.position, entities[i].position) <= 10000)
                 {
                     nearbyEntities.Add(entities[i]);
                 }
@@ -124,7 +119,7 @@ namespace RoseSandboxServer.Core.World
 
             else
             {
-                Logger.LogImportantMessage($"Player {client} already exists in map {mapData.MapName}");
+                Logger.LogImportantMessage($"Player {client} already exists in map {mapData.mapName}");
             }
         }
 
@@ -141,7 +136,7 @@ namespace RoseSandboxServer.Core.World
 
             else
             {
-                Logger.LogImportantMessage($"Player {client} does not exist in map {mapData.MapName}");
+                Logger.LogImportantMessage($"Player {client} does not exist in map {mapData.mapName}");
             }
         }
 
@@ -175,7 +170,7 @@ namespace RoseSandboxServer.Core.World
         /// <returns>String format.</returns>
         public override string ToString()
         {
-            return $"[{mapData.ID}] {mapData.MapName}";
+            return $"[{mapData.ID}] {mapData.mapName}";
         }
     }
 }

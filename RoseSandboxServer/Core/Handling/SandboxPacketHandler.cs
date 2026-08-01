@@ -4,18 +4,13 @@ using RevolutionCore.SQL;
 using RevolutionCore.Utils;
 using RevolutionShared.Attributes;
 using RevolutionShared.Data;
-using RevolutionShared.JSON;
 using RevolutionShared.Networking.Packets;
 using RevolutionShared.Packets;
+using RevolutionShared.Rose.Data;
 using RoseSandboxServer;
-using RoseSandboxServer.Core.Data;
 using RoseSandboxServer.Core.Data.Entities;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace RoseSandboxServer.Core.Handling
@@ -58,7 +53,7 @@ namespace RoseSandboxServer.Core.Handling
 
             var entities = server.Maps[client.map].GetNearbyEntities(client);
 
-            await server.SendPacket(client, Packets.ConnectionResponse(client, startingMap.GetDefaultSpawn(), startingMap.MapData.ID, entities));
+            await server.SendPacket(client, Packets.ConnectionResponse(client, startingMap.GetDefaultSpawn(), startingMap.MapData.ID, entities, server.Configuration.MOTD));
 
             await server.BroadcastPacket(Packets.PlayerConnected(client), client);
         }
@@ -197,7 +192,7 @@ public static class Packets
     /// Packet - Connection Response.
     /// </summary>
     /// <returns></returns>
-    public static PacketOut ConnectionResponse(SandboxClient client, MapSpawn spawn, int startingMapID, List<Entity> entities)
+    public static PacketOut ConnectionResponse(SandboxClient client, MapSpawn spawn, int startingMapID, List<Entity> entities, string motd)
     {
         PacketOut packet = new PacketOut(ServerCommands.SandboxConnectionResponse);
 
@@ -205,9 +200,11 @@ public static class Packets
         packet.Add(client.Account.username);
         packet.Add(startingMapID);
 
-        packet.Add(spawn.X);
-        packet.Add(spawn.Y);
-        packet.Add(spawn.Z);
+        packet.Add(motd);
+
+        packet.Add(spawn.position.x);
+        packet.Add(spawn.position.y);
+        packet.Add(spawn.position.z);
 
         packet.Add(entities);
 

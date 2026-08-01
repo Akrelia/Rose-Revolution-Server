@@ -26,7 +26,7 @@ namespace RevolutionCore.Configurations
         /// <summary>
         /// Starting map id.
         /// </summary>  
-        public int StartingMapID = 65;
+        public int StartingMapID = 61;
         /// <summary>
         /// Max monster spawn amount.
         /// </summary>

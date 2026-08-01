@@ -1,25 +1,15 @@
 ﻿using LinqToDB;
-using Newtonsoft.Json;
 using RevolutionCore.Configurations;
 using RevolutionCore.Networking;
 using RevolutionCore.Services;
 using RevolutionCore.Utils;
 using RevolutionShared.Data;
-using RevolutionShared.JSON;
-using RevolutionShared.Networking.Packets;
-using RoseSandboxServer.Core.Data;
-using RoseSandboxServer.Core.Data.Entities;
 using RoseSandboxServer.Core.Handling;
 using RoseSandboxServer.Core.World;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net.Sockets;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RoseSandboxServer.Core
 {
@@ -57,7 +47,8 @@ namespace RoseSandboxServer.Core
             client.map = configuration.StartingMapID;
 
             var spawn = maps[client.map].GetDefaultSpawn();
-            client.position = new WorldPosition(spawn.X, spawn.Y, spawn.Z);
+
+            client.position = spawn.position;
         }
 
         /// <summary>
@@ -88,17 +79,17 @@ namespace RoseSandboxServer.Core
                     {
                         var spawn = spawner.Basic.PickUp();
 
+                        var worldPosition = new WorldPosition(spawner.Settings.WorldX, spawner.Settings.WorldY, spawner.Settings.WorldZ);
+
                         for (int i = 0; i < spawn.Count; i++)
                         {
-                            var worldPosition = new WorldPosition(spawner.Settings.WorldX, spawner.Settings.WorldZ, spawner.Settings.WorldY);
-
                             var position = map.GetRandomPointAround(spawner.Settings.Range, worldPosition);
 
                             var enemyData = gameData.GetEnemy(spawn.ID);
 
                             if (enemyData != null)
                             {
-                                map.SpawnEntityByID(enemyData, worldPosition);
+                                map.SpawnEntityByID(enemyData, position);
                             }
                         }
                     }
@@ -130,7 +121,7 @@ namespace RoseSandboxServer.Core
 
                 else
                 {
-                    Logger.LogImportantMessage($"Player {client.Account.username} does not exist in map {map.MapData.MapName}");
+                    Logger.LogImportantMessage($"Player {client.Account.username} does not exist in map {map.MapData.mapName}");
                 }
             }
 

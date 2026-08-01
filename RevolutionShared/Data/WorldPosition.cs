@@ -42,11 +42,20 @@ namespace RevolutionShared.Data
 
         public static WorldPosition operator /(WorldPosition a, float d) => new WorldPosition(a.x / d, a.y / d, a.z / d);
 
-        public float Magnitude => (float)Math.Sqrt(x * x + y * y + z * z);
+        public float GetMagnitude()
+        {
+            return (float)Math.Sqrt(x * x + y * y + z * z);
+        }
 
-        public float SqrMagnitude => x * x + y * y + z * z;
+        public float GetSqrMagnitude()
+        {
+            return x * x + y * y + z * z;
+        }
 
-        public WorldPosition Normalized =>this / Magnitude;
+        public WorldPosition Normalized()
+        {
+            return this / GetMagnitude();
+        }
 
         public static float Dot(WorldPosition a, WorldPosition b) => a.x * b.x + a.y * b.y + a.z * b.z;
 
@@ -57,7 +66,7 @@ namespace RevolutionShared.Data
                 a.x * b.y - a.y * b.x
             );
 
-        public static float Distance(WorldPosition a, WorldPosition b) =>(a - b).Magnitude;
+        public static float Distance(WorldPosition a, WorldPosition b) =>(a - b).GetMagnitude();
 
         public override string ToString() => $"({x:0.###}, {y:0.###}, {z:0.###})";
 

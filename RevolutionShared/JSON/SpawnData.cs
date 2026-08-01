@@ -1,57 +1,45 @@
 ﻿using RevolutionShared.Rose.Data;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System;
 
-namespace RevolutionShared.JSON
+[Serializable]
+public class SpawnData : IData
 {
-    /// <summary>
-    /// Monster Spawn.
-    /// </summary>
-    public class EnemySpawn
-    {
-        public int ID { get; set; }
-        public int Count { get; set; }
-        public string Description { get; set; }
-    }
+    public int ID;
+    public string MapName;
+    public List<EnemySpawner> Spawners;
 
-    /// <summary>
-    /// Spawn Data.
-    /// </summary>
-    public class SpawnData : IData
-    {
-        public int ID { get; set; }
-        public string MapName { get; set; }
-        public List<EnemySpawner> Spawners { get; set; }
-    }
+    int IData.ID { get => ID; set => ID = value; }
+}
 
-    /// <summary>
-    /// Spawn Settings.
-    /// </summary>
-    public class SpawnSettings
-    {
-        public string Name { get; set; }
-        public float MapX { get; set; }
-        public float MapY { get; set; }
-        public int ID { get; set; }
-        public float WorldX { get; set; }
-        public float WorldY { get; set; }
-        public float WorldZ { get; set; }
-        public int Interval { get; set; }
-        public int LimitCount { get; set; }
-        public float Range { get; set; }
-        public int TacticPoints { get; set; }
-    }
+[Serializable]
+public class EnemySpawner
+{
+    public SpawnSettings Settings;
+    public List<EnemySpawn> Basic;
+    public List<EnemySpawn> Tactic;
+}
 
-    /// <summary>
-    /// Spawn.
-    /// </summary>
-    public class EnemySpawner
-    {
-        public SpawnSettings Settings { get; set; }
-        public List<EnemySpawn> Basic { get; set; }
-        public List<EnemySpawn> Tactic { get; set; }
-    }
+[Serializable]
+public class EnemySpawn
+{
+    public int ID;
+    public int Count;
+    public string Description;
+}
+
+[Serializable]
+public class SpawnSettings
+{
+    public string Name;
+    public float MapX;
+    public float MapY;
+    public int ID;
+    public float WorldX;
+    public float WorldY;
+    public float WorldZ;
+    public int Interval;
+    public int LimitCount;
+    public float Range;
+    public int TacticPoints;
 }
