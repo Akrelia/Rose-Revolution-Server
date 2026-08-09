@@ -14,7 +14,7 @@
 
 - [Discord Server](https://discord.gg/2SxQWtMC3X)
 - [Website](https://baptistefran.github.io/rose-revolution/)
-- [Server Repository](https://github.com/Akrelia/Rose-Revolution-Server/tree/master)
+- [Client Repository](https://github.com/Akrelia/RoseRevolution/)
 
 ---
 
