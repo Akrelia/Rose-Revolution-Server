@@ -22,7 +22,20 @@ namespace RevolutionShared.Data
 
     }
 
-    public record CharacterAppearance(GenderType Gender, byte Hair, byte Face, int Back, int Body, int Gloves, int Shoes, int Mask, int Hat, int Weapon, int SubWeapon) : SerializableRecord<CharacterAppearance>;
+    [MessagePackObject]
+    public partial record CharacterAppearance(
+        [property: Key(0)] GenderType Gender,
+        [property: Key(1)] byte Hair,
+        [property: Key(2)] byte Face,
+        [property: Key(3)] int Back,
+        [property: Key(4)] int Body,
+        [property: Key(5)] int Gloves,
+        [property: Key(6)] int Shoes,
+        [property: Key(7)] int Mask,
+        [property: Key(8)] int Hat,
+        [property: Key(9)] int Weapon,
+        [property: Key(10)] int SubWeapon
+    ) : SerializableRecord;
 
     //  public record EntityInfos(int id, EntityType type, int dataID, WorldPosition position) : SerializableRecord<EntityInfos>;
     //  public record EnemyInfos(int id, EntityType type, int dataID, WorldPosition position, int health) : EntityInfos(id, type, dataID, position);

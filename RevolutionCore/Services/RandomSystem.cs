@@ -13,7 +13,7 @@ namespace RevolutionCore.Services
     /// </summary>
     public class RandomSystem
     {
-        private static readonly Random random = new Random();
+        public static readonly Random random = new Random();
 
         /// <summary>
         /// Constructor.

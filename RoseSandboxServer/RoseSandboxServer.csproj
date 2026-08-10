@@ -100,11 +100,15 @@
   <ItemGroup>
     <Compile Include="Core\Data\Entities\Enemy.cs" />
     <Compile Include="Core\Data\Entities\Entity.cs" />
+    <Compile Include="Core\Data\Player.cs" />
     <Compile Include="Core\Handling\SandboxPacketHandler.cs" />
     <Compile Include="Core\SandboxDatabase.cs" />
     <Compile Include="Core\SandboxServer.cs" />
     <Compile Include="Core\World\Map.cs" />
     <Compile Include="Data\SQL\Account.cs" />
+    <Compile Include="Networking\Contexts\Context.cs" />
+    <Compile Include="Networking\Contexts\ContextPacket.cs" />
+    <Compile Include="Networking\Contexts\TickContext.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\SandboxClient.cs" />

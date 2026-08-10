@@ -88,5 +88,10 @@ namespace RevolutionCore.Configurations
         /// Path to the game data folder.
         /// </summary>
         public string GameDataPath = "GameData";
+        /// <summary>
+        /// Tick rate.
+        /// </summary>
+        [JsonIgnore]
+        public TimeSpan TickRate = TimeSpan.FromMilliseconds(100);
     }
 }

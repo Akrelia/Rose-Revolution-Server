@@ -91,6 +91,7 @@
     <Compile Include="Packets\PacketOut.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rose\Data\Ability.cs" />
+    <Compile Include="Rose\Data\Equipment\SubWeaponData.cs" />
     <Compile Include="Rose\Data\IData.cs" />
     <Compile Include="Rose\Data\MapData.cs" />
     <Compile Include="Rose\Data\NPC\Drops\DropData.cs" />

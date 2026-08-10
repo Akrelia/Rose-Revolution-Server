@@ -3,8 +3,10 @@ using RevolutionShared.Data;
 using RevolutionShared.Rose.Data;
 using RevolutionShared.Rose.Data.NPC;
 using RoseSandboxServer.Core.Data.Entities;
+using RoseSandboxServer.Networking.Contexts;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace RoseSandboxServer.Core.World
 {
@@ -31,6 +33,24 @@ namespace RoseSandboxServer.Core.World
         }
 
         /// <summary>
+        /// Update.
+        /// </summary>
+        /// <param name="context">Context.</param>
+        /// <returns></returns>
+        public async Task Update(TickContext context)
+        {
+            foreach (var player in players.Values)
+            {
+                await player.Update(context);
+            }
+
+            foreach (var entity in entities.Values)
+            {
+                await entity.Update(context);
+            }
+        }
+
+        /// <summary>
         /// Get the default spawn of the map.
         /// </summary>
         /// <returns></returns>
@@ -50,7 +70,7 @@ namespace RoseSandboxServer.Core.World
         {
             var entityID = GetNewEntityId();
 
-            Enemy entity = new Enemy(entityID, data);
+            Enemy entity = new Enemy(entityID, data, this);
 
             entity.position = position;
 
@@ -91,13 +111,33 @@ namespace RoseSandboxServer.Core.World
         /// </summary>
         /// <param name="client">Client.</param>
         /// <returns>List of nearby entities.</returns>
+        public List<SandboxClient> GetNearbyPlayers(SandboxClient client)
+        {
+            var nearbyPlayers = new List<SandboxClient>();
+
+            for (int i = 0; i < players.Count; i++)
+            {
+                if (WorldPosition.Distance(client.player.position, players[i].player.position) <= 10000)
+                {
+                    nearbyPlayers.Add(players[i]);
+                }
+            }
+
+            return nearbyPlayers;
+        }
+
+        /// <summary>
+        /// Get entities nearby the client.
+        /// </summary>
+        /// <param name="client">Client.</param>
+        /// <returns>List of nearby entities.</returns>
         public List<Entity> GetNearbyEntities(SandboxClient client)
         {
             var nearbyEntities = new List<Entity>();
 
             for (int i = 0; i < entities.Count; i++)
             {
-                if (WorldPosition.Distance(client.position, entities[i].position) <= 10000)
+                if (WorldPosition.Distance(client.player.position, entities[i].position) <= 10000)
                 {
                     nearbyEntities.Add(entities[i]);
                 }

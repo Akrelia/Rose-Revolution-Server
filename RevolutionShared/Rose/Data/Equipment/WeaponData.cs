@@ -15,7 +15,7 @@ namespace RevolutionShared.Rose.Data.Equipment
         public short attackSpeed;
         public AttackType attackType;
         public WeaponType weaponType;
-        public short attackEffectID; // ID of the FX
+        public short attackEffectID;
         public short attackingSoundEffectID;
         public short firingSoundEffectID;
     }

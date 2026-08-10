@@ -38,6 +38,7 @@ namespace RevolutionShared.Packets
         SendWorld = 0x1005,
         PlayerMoved = 0x1006,
         PlayerUpdate = 0x1007,
-        GMCommandExecuted = 0x2000
+        GMCommandExecuted = 0x2000,
+        EntityUpdate = 0x2001
     }
 }

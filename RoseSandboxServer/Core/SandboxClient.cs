@@ -1,11 +1,14 @@
 ﻿using RevolutionCore.Networking;
 using RevolutionCore.Utils;
 using RevolutionShared.Data;
+using RevolutionShared.Rose.Data;
 using RoseSandboxServer.Core.Data;
+using RoseSandboxServer.Networking.Contexts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,23 +20,26 @@ namespace RoseSandboxServer
     public class SandboxClient : RoseClient
     {
         public int map;
-        public WorldPosition position;
-        CharacterAppearance appearance;
+        public Player player;
 
         /// <summary>
         /// Parameterless Constructor.
         /// </summary>
         public SandboxClient() : base()
         {
+            player = new Player((int)id, EntityType.Player, 0, null); // TODO : remove this asap
         }
 
         /// <summary>
-        /// Get or set the player appearance.
+        /// Update the world client.
         /// </summary>
-        public CharacterAppearance Appearance
+        /// <param name="context">Context.</param>
+        /// <returns>Task.</returns>
+        public async Task Update(TickContext context)
         {
-            get { return appearance; }
-            set { appearance = value; }
+            // Put here the logic to update the client itself later
+
+            await player.Update(context);
         }
 
         /// <summary>

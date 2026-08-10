@@ -5,6 +5,7 @@ using RevolutionShared.Networking.Packets;
 using RevolutionShared.Packets;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -48,6 +49,10 @@ namespace RevolutionCore.Networking
         /// </summary>
         protected C configuration;
         /// <summary>
+        /// Stopwatch.
+        /// </summary>
+        protected Stopwatch stopwatch;
+        /// <summary>
         /// List of clients.
         /// </summary>
         protected List<T> clients;
@@ -61,6 +66,13 @@ namespace RevolutionCore.Networking
         protected Dictionary<long, Task> userTasks = new Dictionary<long, Task>();
 
         private long currentClientIndex;
+
+        double lastTime = 0;
+
+        /// <summary>
+        /// Game time.
+        /// </summary>
+        static public double GameTime;
 
         /// <summary>
         /// Constructor.
@@ -78,6 +90,8 @@ namespace RevolutionCore.Networking
             // database = new Database(Configuration.DatabaseDbIp, Configuration.DatabasePort, Configuration.DatabaseName, Configuration.DatabaseUser, Configuration.DatabasePassword);
             listener = new TcpListener(IPAddress.Parse(configuration.ServerAddress), configuration.ServerPort);
             tokenSource = new CancellationTokenSource();
+
+            stopwatch = Stopwatch.StartNew();
         }
 
         /// <summary>
@@ -91,7 +105,7 @@ namespace RevolutionCore.Networking
 
             _ = ListenAsync(tokenSource.Token);
 
-            await Task.WhenAll(ListenAsync(tokenSource.Token));
+            await Task.WhenAll(ListenAsync(tokenSource.Token), UpdateAsync());
         }
 
         /// <summary>
@@ -101,8 +115,6 @@ namespace RevolutionCore.Networking
         {
             tokenSource = CancellationTokenSource.CreateLinkedTokenSource(new CancellationToken());
             token = tokenSource.Token;
-            listener.Start();
-            //  database.Open();
         }
 
         /// <summary>
@@ -137,6 +149,15 @@ namespace RevolutionCore.Networking
         }
 
         /// <summary>
+        /// Tick rate.
+        /// </summary>
+        /// <returns></returns>
+        public virtual async Task TickRate(double time)
+        {
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
         /// Accept an incoming client.
         /// </summary>
         /// <param name="tcpClient">TCP Client.</param>
@@ -162,6 +183,35 @@ namespace RevolutionCore.Networking
         public virtual void InitializeClient(T client)
         {
 
+        }
+
+        public async Task UpdateAsync()
+        {
+            try
+            {
+                while (true)
+                {
+                    double now = stopwatch.Elapsed.TotalSeconds;
+                    double delta = now - lastTime;
+
+                    GameTime += delta;
+                    lastTime = now;
+
+                    await TickRate(GameTime);
+
+                    await Task.Delay(Configuration.TickRate);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Something went wrong while tick rate : {ex.Message} - {ex.StackTrace}");
+            }
+
+            finally
+            {
+                await Task.CompletedTask;
+            }
         }
 
         /// <summary>

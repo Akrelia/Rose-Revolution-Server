@@ -45,7 +45,7 @@ namespace RoseSandboxServer.Core.Handling
 
             client.Account = new Account(playerName, AccountRight.GameMaster); // Everyone is a GM in the Sandbox.
 
-            var apparence = packet.DeserializeRecord<CharacterAppearance>();
+        //    var apparence = packet.DeserializeRecordNew<CharacterAppearance>();
 
             var startingMap = server.Maps[server.Configuration.StartingMapID];
 
@@ -111,7 +111,7 @@ namespace RoseSandboxServer.Core.Handling
 
             position.ReadFromPacket(packet);
 
-            client.position = position;
+            client.player.position = position;
 
             // var entities = server.Maps[client.map].GetNearbyEntities(client);
 
@@ -144,7 +144,14 @@ namespace RoseSandboxServer.Core.Handling
 
             for (int i = 0; i < amount; i++)
             {
-                var randomPosition = map.GetRandomPointAround(10, client.position);
+                var randomPosition = map.GetRandomPointAround(10, client.player.position);
+
+                if (server.GameData.enemies.ContainsKey(monsterID) == false)
+                {
+                    await server.SendPacket(client, Packets.GMCommandExecuted(client, $"Monster Spawn {monsterID} x {amount} (Failed: Monster ID does not exist)"));
+                
+                    return;
+                }
 
                 var entity = map.SpawnEntityByID(server.GameData.enemies[monsterID], randomPosition);
 
@@ -250,11 +257,11 @@ public static class Packets
 
                 packet.Add(client.Account.username);
 
-                packet.Add(client.Appearance);
+                packet.AddNew(client.player.Appearance);
 
-                packet.Add(client.position.x);
-                packet.Add(client.position.y);
-                packet.Add(client.position.z);
+                packet.Add(client.player.position.x);
+                packet.Add(client.player.position.y);
+                packet.Add(client.player.position.z);
             }
         }
 
@@ -273,7 +280,7 @@ public static class Packets
         packet.Add(client.ID);
         packet.Add(client.Account.username);
 
-        packet.SerializeRecord(client.Appearance);
+        packet.SerializeRecordNew(client.player.Appearance);
 
         return packet;
     }
@@ -335,6 +342,22 @@ public static class Packets
 
         packet.Add(author.Account.username);
         packet.Add(commandName);
+
+        return packet;
+    }
+
+    /// <summary>
+    /// Packet - Update entity.
+    /// </summary>
+    /// <param name="entity">Entity.</param>
+    /// <returns>Packet.</returns>
+    public static PacketOut UpdateEntity(Entity entity)
+    {
+        PacketOut packet = new PacketOut(ServerCommands.EntityUpdate);
+
+        packet.Add(entity.id);
+
+        packet.Add(entity.position);
 
         return packet;
     }

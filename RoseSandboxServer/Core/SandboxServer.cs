@@ -4,12 +4,15 @@ using RevolutionCore.Networking;
 using RevolutionCore.Services;
 using RevolutionCore.Utils;
 using RevolutionShared.Data;
+using RevolutionShared.Networking.Packets;
 using RoseSandboxServer.Core.Handling;
 using RoseSandboxServer.Core.World;
+using RoseSandboxServer.Networking.Contexts;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace RoseSandboxServer.Core
 {
@@ -37,6 +40,26 @@ namespace RoseSandboxServer.Core
         }
 
         /// <summary>
+        /// Tick rate.
+        /// </summary>
+        /// <param name="time">Time.</param>
+        /// <returns>Task.</returns>
+        public override async Task TickRate(double time)
+        {
+            foreach (Map map in maps.Values)
+            {
+                TickContext context = new TickContext(time);
+
+                await map.Update(context);
+
+                for (int i = 0; i < context.Packets.Count; i++)
+                {
+                    await context.Packets[i].Send(this);
+                }
+            }
+        }
+
+        /// <summary>
         /// Initialize the client.
         /// </summary>
         /// <param name="client">Client.</param>
@@ -48,7 +71,7 @@ namespace RoseSandboxServer.Core
 
             var spawn = maps[client.map].GetDefaultSpawn();
 
-            client.position = spawn.position;
+            client.player.position = spawn.position;
         }
 
         /// <summary>
@@ -128,6 +151,60 @@ namespace RoseSandboxServer.Core
             else
             {
                 Logger.LogImportantMessage($"Map {client.map} does not exist (this shouldn't happen");
+            }
+        }
+
+        /// <summary>
+        /// Send a map-wide packet to all players in.
+        /// </summary>
+        /// <param name="mapID">Map ID.</param>
+        /// <param name="packet">Packet.</param>
+        /// <returns>Task.</returns>
+        public async Task SendMapPacket(int mapID, PacketOut packet)
+        {
+            if (maps.ContainsKey(mapID))
+            {
+               await SendMapPacket(maps[mapID], packet);
+            }
+
+            else
+            {
+                Logger.LogError($"Map {mapID} does not exist (this shouldn't happen)");
+            }
+        }
+
+        /// <summary>
+        /// Send a map-wide packet to all players in.
+        /// </summary>
+        /// <param name="map">Map.</param>
+        /// <param name="packet">Packet.</param>
+        /// <returns>Task.</returns>
+        public async Task SendMapPacket(Map map, PacketOut packet)
+        {
+            foreach (var player in map.Players.Values)
+            {
+                await SendPacket(player, packet);
+            }
+        }
+
+        /// <summary>
+        /// Send a zone-wide packet to all players in the zone.
+        /// </summary>
+        /// <param name="originClient">Origin client.</param>
+        /// <param name="packet">Packet.</param>
+        /// <returns>Task.</returns>
+        public async Task SendZonePacket(SandboxClient originClient, PacketOut packet)
+        {
+            var clients = maps[originClient.map].GetNearbyPlayers(originClient);
+
+            foreach (var client in clients)
+            {
+                if (originClient != null && client.ID == originClient.ID)
+                {
+                    continue;
+                }
+
+                await SendPacket(client, packet);
             }
         }
 
