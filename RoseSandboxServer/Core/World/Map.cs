@@ -18,7 +18,8 @@ namespace RoseSandboxServer.Core.World
         int currentEntityID;
         MapData mapData;
         Dictionary<int, Entity> entities;
-        public Dictionary<long, SandboxClient> players;
+        Dictionary<int, NPC> npcs;
+        Dictionary<long, SandboxClient> players;
 
         /// <summary>
         /// Constructor.
@@ -30,6 +31,7 @@ namespace RoseSandboxServer.Core.World
 
             players = new Dictionary<long, SandboxClient>();
             entities = new Dictionary<int, Entity>();
+            npcs = new Dictionary<int, NPC>();
         }
 
         /// <summary>
@@ -48,6 +50,11 @@ namespace RoseSandboxServer.Core.World
             {
                 await entity.Update(context);
             }
+
+            foreach (var npc in npcs.Values)
+            {
+                await npc.Update(context);
+            }
         }
 
         /// <summary>
@@ -59,6 +66,24 @@ namespace RoseSandboxServer.Core.World
             var spawn = mapData.spawns.FirstOrDefault(e => e.name == "start") ?? mapData.spawns.FirstOrDefault(e => e.name == "restore"); // TODO : Avoid those legacy name to something better, like an enum
 
             return spawn;
+        }
+
+        /// <summary>
+        /// Spawn entity by ID.
+        /// </summary>
+        /// <param name="dataID">Data ID.</param>
+        /// <param name="position">Position.</param>
+        public Entity SpawnNPCByID(NPCData data, WorldPosition position)
+        {
+            var entityID = GetNewEntityId();
+
+            NPC entity = new NPC(entityID, data, this);
+
+            entity.position = position;
+
+            npcs.Add(entityID, entity);
+
+            return entity;
         }
 
         /// <summary>
@@ -135,11 +160,11 @@ namespace RoseSandboxServer.Core.World
         {
             var nearbyEntities = new List<Entity>();
 
-            for (int i = 0; i < entities.Count; i++)
+            foreach (Entity entity in entities.Values)
             {
-                if (WorldPosition.Distance(client.player.position, entities[i].position) <= 10000)
+                if (WorldPosition.Distance(client.player.position, entity.position) <= 10000)
                 {
-                    nearbyEntities.Add(entities[i]);
+                    nearbyEntities.Add(entity);
                 }
             }
 
@@ -194,6 +219,14 @@ namespace RoseSandboxServer.Core.World
         public Dictionary<long, SandboxClient> Players
         {
             get { return players; }
+        }
+
+        /// <summary>
+        /// Get the NPCs.
+        /// </summary>
+        public Dictionary<int, NPC> NPCs
+        {
+            get { return npcs; }
         }
 
         /// <summary>

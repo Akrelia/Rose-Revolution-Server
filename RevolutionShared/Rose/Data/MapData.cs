@@ -17,13 +17,15 @@ namespace RevolutionShared.Rose.Data
         public SpawnData spawnData;
         public MapTime time;
         public List<MapSpawn> spawns;
+        public List<NPCSpawn> npcSpawns;
         public int ID { get { return id; } set { id = value; } }
 
-        public MapData(int mapID, string mapName, List<MapSpawn> spawns)
+        public MapData(int mapID, string mapName, List<MapSpawn> spawns, List<NPCSpawn> npcSpawns)
         {
             this.id = mapID;
             this.mapName = mapName;
             this.spawns = spawns;
+            this.npcSpawns = npcSpawns;
         }
     }
 
@@ -46,6 +48,33 @@ namespace RevolutionShared.Rose.Data
 
         public MapSpawn(string name, float x, float y, float z)
         {
+            this.name = name;
+            this.position = new WorldPosition(x, y, z);
+        }
+    }
+
+    [Serializable]
+    public class NPCSpawn
+    {
+        public int npcID;
+        public string name;
+        public WorldPosition position;
+
+        public NPCSpawn()
+        {
+
+        }
+
+        public NPCSpawn(int npcID, string name, WorldPosition position)
+        {
+            this.npcID = npcID;
+            this.name = name;
+            this.position = position;
+        }
+
+        public NPCSpawn(int npcID, string name, float x, float y, float z)
+        {
+            this.npcID = npcID;
             this.name = name;
             this.position = new WorldPosition(x, y, z);
         }

@@ -21,6 +21,12 @@ namespace RevolutionCore.Services
         public Dictionary<int, MapData> maps;
         public Dictionary<int, SpawnData> spawners;
         public Dictionary<int, EnemyData> enemies;
+        public Dictionary<int, NPCData> npcs;
+
+        public const string MapFolder = "Maps";
+        public const string SpawnFolder = "Spawns";
+        public const string EnemyFolder = "Enemies";
+        public const string NPCFolder = "NPCs";
 
         /// <summary>
         /// Constructor.
@@ -36,9 +42,10 @@ namespace RevolutionCore.Services
         {
             if (Directory.Exists(dataPath))
             {
-                maps = LoadData<MapData>(Path.Combine(dataPath, "Maps"));
-                spawners = LoadData<SpawnData>(Path.Combine(dataPath, "Spawns"));
-                enemies = LoadData<EnemyData>(Path.Combine(dataPath, "Enemies"));
+                maps = LoadData<MapData>(Path.Combine(dataPath, MapFolder));
+                spawners = LoadData<SpawnData>(Path.Combine(dataPath, SpawnFolder));
+                enemies = LoadData<EnemyData>(Path.Combine(dataPath, EnemyFolder));
+                npcs = LoadData<NPCData>(Path.Combine(dataPath, NPCFolder));
 
                 foreach (var map in maps.Values)
                 {
@@ -56,6 +63,7 @@ namespace RevolutionCore.Services
                 Logger.LogImportantMessage($"Maps loaded : {maps.Count}");
                 Logger.LogImportantMessage($"Spawns loaded : {spawners.Count}");
                 Logger.LogImportantMessage($"Enemies loaded : {enemies.Count}");
+                Logger.LogImportantMessage($"NPCs loaded : {npcs.Count}");
             }
 
             else
@@ -72,6 +80,16 @@ namespace RevolutionCore.Services
         public EnemyData GetEnemy(int id)
         {
             return GetData(enemies, id);
+        }
+
+        /// <summary>
+        /// Get NPC data.
+        /// </summary>
+        /// <param name="id">ID.</param>
+        /// <returns>NPC Data.</returns>
+        public NPCData GetNPC(int id)
+        {
+            return GetData(npcs, id);
         }
 
         /// <summary>
@@ -131,7 +149,7 @@ namespace RevolutionCore.Services
                 {
                     string json = File.ReadAllText(file);
 
-                    var data = JsonConvert.DeserializeObject<T>(json);
+                    var data = JsonConvert.DeserializeObject<T>(json); // REPRISE : NPCs pas lues
 
                     if (data != null)
                     {

@@ -9,6 +9,7 @@ namespace RevolutionShared.Rose.Data.NPC
     [Serializable]
     public class NPCData : EntityData
     {
+        public int dialogID;
         public int sellTableID1;
         public int sellTableID2;
         public int sellTableID3;

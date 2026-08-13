@@ -90,6 +90,21 @@ namespace RoseSandboxServer.Core
                 var map = new Map(mapData);
 
                 maps.Add(mapData.ID, map);
+
+                foreach (var npcSpawn in mapData.npcSpawns)
+                {
+                    var npcData = gameData.GetNPC(npcSpawn.npcID);
+
+                    if (npcData != null)
+                    {
+                        map.SpawnNPCByID(npcData, npcSpawn.position);
+                    }
+
+                    else
+                    {
+                        Logger.LogWarning($"Missing enemy data for NPC spawn {npcSpawn.npcID} in map {mapData.mapName}");
+                    }
+                }
             }
 
             foreach (var map in maps.Values)

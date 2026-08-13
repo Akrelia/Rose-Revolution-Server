@@ -9,6 +9,7 @@ using RevolutionShared.Packets;
 using RevolutionShared.Rose.Data;
 using RoseSandboxServer;
 using RoseSandboxServer.Core.Data.Entities;
+using RoseSandboxServer.Core.World;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -41,19 +42,19 @@ namespace RoseSandboxServer.Core.Handling
         [PacketCommand(ClientCommands.ConnectSandbox)]
         public async Task HandleConnection(SandboxClient client, PacketIn packet)
         {
+            var startingMap = server.Maps[server.Configuration.StartingMapID];
+
             var playerName = packet.GetString();
 
             client.Account = new Account(playerName, AccountRight.GameMaster); // Everyone is a GM in the Sandbox.
 
-        //    var apparence = packet.DeserializeRecordNew<CharacterAppearance>();
-
-            var startingMap = server.Maps[server.Configuration.StartingMapID];
-
-            startingMap.AddPlayer(client);
+            var apparence = packet.DeserializeRecordNew<CharacterAppearance>();
 
             var entities = server.Maps[client.map].GetNearbyEntities(client);
 
-            await server.SendPacket(client, Packets.ConnectionResponse(client, startingMap.GetDefaultSpawn(), startingMap.MapData.ID, entities, server.Configuration.MOTD));
+            startingMap.AddPlayer(client);
+
+            await server.SendPacket(client, Packets.ConnectionResponse(client, startingMap, entities, server.Configuration.MOTD));
 
             await server.BroadcastPacket(Packets.PlayerConnected(client), client);
         }
@@ -149,7 +150,7 @@ namespace RoseSandboxServer.Core.Handling
                 if (server.GameData.enemies.ContainsKey(monsterID) == false)
                 {
                     await server.SendPacket(client, Packets.GMCommandExecuted(client, $"Monster Spawn {monsterID} x {amount} (Failed: Monster ID does not exist)"));
-                
+
                     return;
                 }
 
@@ -199,20 +200,16 @@ public static class Packets
     /// Packet - Connection Response.
     /// </summary>
     /// <returns></returns>
-    public static PacketOut ConnectionResponse(SandboxClient client, MapSpawn spawn, int startingMapID, List<Entity> entities, string motd)
+    public static PacketOut ConnectionResponse(SandboxClient client, Map map, List<Entity> entities, string motd)
     {
         PacketOut packet = new PacketOut(ServerCommands.SandboxConnectionResponse);
 
         packet.Add(client.ID);
         packet.Add(client.Account.username);
-        packet.Add(startingMapID);
-
+        packet.Add(map.MapData.ID);
+        packet.Add(map.NPCs);
         packet.Add(motd);
-
-        packet.Add(spawn.position.x);
-        packet.Add(spawn.position.y);
-        packet.Add(spawn.position.z);
-
+        packet.Add(map.GetDefaultSpawn().position);
         packet.Add(entities);
 
         return packet;
@@ -259,9 +256,7 @@ public static class Packets
 
                 packet.AddNew(client.player.Appearance);
 
-                packet.Add(client.player.position.x);
-                packet.Add(client.player.position.y);
-                packet.Add(client.player.position.z);
+                packet.Add(client.player.position);
             }
         }
 

@@ -22,12 +22,10 @@ namespace RoseSandboxServer.Core.Data.Entities
         int currentHealth;
         readonly EnemyData data;
 
-        /// <summary>
-        /// Dummies for now since we don't use the AIP file atm.
-        /// </summary>
-        public float moveChance = 0.1F;
+        // Dummies for now since we don't use the AIP file atm.
+        public float moveChance = 0.00001F;
         public double lastActionTime;
-        public double actionCooldown = 2;
+        public double actionCooldown = 10;
 
         /// <summary>
         /// Constructor.
@@ -61,18 +59,21 @@ namespace RoseSandboxServer.Core.Data.Entities
         /// <param name="context">Context.</param>
         public void Move(TickContext context)
         {
-            if (RandomSystem.random.NextDouble() < moveChance)
+            if (data.moveSpeed != 0) // Obviously, if the enemy can't move, don't move it.
             {
-                var amount = new Random().Next(-5, 5);
+                if (RandomSystem.random.NextDouble() < moveChance)
+                {
+                    var amount = new Random().Next(-5, 5);
 
-                amount += Math.Sign(amount) * 2;
+                    amount += Math.Sign(amount) * 2;
 
-                position.x += amount;
-                position.z += amount;
+                    position.x += amount;
+                    position.z += amount;
 
-                context.AddMapPacket(Packets.UpdateEntity(this), map);
+                    context.AddMapPacket(Packets.UpdateEntity(this), map);
 
-                lastActionTime = context.Time;
+                    lastActionTime = context.Time;
+                }
             }
         }
 
