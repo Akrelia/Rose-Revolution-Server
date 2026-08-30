@@ -14,11 +14,19 @@ namespace RevolutionCore.Configurations
         /// <summary>
         /// Server address.
         /// </summary>
-        private static string SandboxServerAddress = "192.168.1.198";
+        private static string SandboxServerLocalAddress = "192.168.1.198";
         /// <summary>
         /// Server port.
         /// </summary>
-        private static short SandboxServerPort = 27350;
+        private static short SandboxServerLocalPort = 27900;
+        /// <summary>
+        /// Server address.
+        /// </summary>
+        private static string SandboxServerAddress = "192.168.1.57";
+        /// <summary>
+        /// Server port.
+        /// </summary>
+        private static short SandboxServerPort = 27900;
         /// <summary>
         /// Server isc port.
         /// </summary>
@@ -39,7 +47,13 @@ namespace RevolutionCore.Configurations
         /// <summary>
         /// Constructor.
         /// </summary>
-        public SandboxConfiguration() : base(SandboxServerAddress, SandboxServerPort, SandboxServerPortIsc)
+        public SandboxConfiguration() : base(
+#if DEBUG
+            SandboxServerLocalAddress, SandboxServerLocalPort, SandboxServerPortIsc
+#else
+    SandboxServerAddress, SandboxServerPort, SandboxServerPortIsc
+#endif
+        )
         {
         }
     }

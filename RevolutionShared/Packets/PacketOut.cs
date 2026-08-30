@@ -109,7 +109,7 @@ namespace RevolutionShared.Networking.Packets
         /// <param name="value">Value.</param>
         public void Add(char value)
         {
-            Add(BitConverter.GetBytes(value));
+            AddRaw(BitConverter.GetBytes(value));
         }
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace RevolutionShared.Networking.Packets
         /// <param name="value">Value.</param>
         public void Add(bool value)
         {
-            Add(BitConverter.GetBytes(value));
+            AddRaw(BitConverter.GetBytes(value));
         }
 
         /// <summary>
@@ -181,11 +181,18 @@ namespace RevolutionShared.Networking.Packets
         /// Add bytes in the buffer.
         /// </summary>
         /// <param name="values">Value of the byte.</param>
-        public void Add(byte[] values)
+        private void AddRaw(byte[] values)
         {
             buffer.AddRange(values);
 
             RefreshSize();
+        }
+
+        public void Add(byte[] values)
+        {
+            Add(values.Length);
+
+            AddRaw(values);
         }
 
         /// <summary>
@@ -507,7 +514,7 @@ namespace RevolutionShared.Networking.Packets
         /// <param name="value">Short value.</param>
         public void AddShort(short value)
         {
-            Add(BitConverter.GetBytes(value));
+            AddRaw(BitConverter.GetBytes(value));
         }
 
         /// <summary>
@@ -525,7 +532,7 @@ namespace RevolutionShared.Networking.Packets
         /// <param name="value">Short value.</param>
         public void AddInt(int value)
         {
-            Add(BitConverter.GetBytes(value));
+            AddRaw(BitConverter.GetBytes(value));
         }
 
         /// <summary>
@@ -534,7 +541,7 @@ namespace RevolutionShared.Networking.Packets
         /// <param name="value">Short value.</param>
         public void AddUInt(uint value)
         {
-            Add(BitConverter.GetBytes(value));
+            AddRaw(BitConverter.GetBytes(value));
         }
 
         /// <summary>
@@ -551,7 +558,7 @@ namespace RevolutionShared.Networking.Packets
 
                 Add(data.Length);
 
-                Add(data);
+                AddRaw(data);
             }
 
             else
@@ -575,7 +582,7 @@ namespace RevolutionShared.Networking.Packets
 
                     Add(data.Length);
 
-                    Add(data);
+                    AddRaw(data);
                 }
 
                 else
@@ -584,7 +591,7 @@ namespace RevolutionShared.Networking.Packets
 
                     Add(maximum);
 
-                    Add(data);
+                    AddRaw(data);
                 }
             }
 
@@ -600,7 +607,7 @@ namespace RevolutionShared.Networking.Packets
         /// <param name="value">Float to add.</param>
         public void AddFloat(float value)
         {
-            Add(BitConverter.GetBytes(value));
+            AddRaw(BitConverter.GetBytes(value));
         }
 
         /// <summary>
@@ -609,7 +616,7 @@ namespace RevolutionShared.Networking.Packets
         /// <param name="value">Long to add.</param>
         public void AddLong(long value)
         {
-            Add(BitConverter.GetBytes(value));
+            AddRaw(BitConverter.GetBytes(value));
         }
 
         /// <summary>

@@ -20,7 +20,8 @@ namespace RevolutionShared.Packets
         GetWorld = 0x1004,
         Move = 0x1005,
         Equip = 0x1006,
-        GMCommandSpawnMonster = 0x4500
+        GMCommandSpawnMonster = 0x4500,
+        GMCommandDamage = 0x4501
     }
 
     /// <summary>
@@ -39,6 +40,7 @@ namespace RevolutionShared.Packets
         PlayerMoved = 0x1006,
         PlayerUpdate = 0x1007,
         GMCommandExecuted = 0x2000,
-        EntityUpdate = 0x2001
+        EntityUpdate = 0x2001,
+        EntityDeath = 0x2002
     }
 }

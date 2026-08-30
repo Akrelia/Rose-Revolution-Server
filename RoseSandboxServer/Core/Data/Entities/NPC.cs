@@ -1,6 +1,8 @@
 ﻿using RevolutionCore.Networking;
 using RevolutionCore.Services;
+using RevolutionCore.Utils;
 using RevolutionShared.Data;
+using RevolutionShared.Networking.Packets;
 using RevolutionShared.Rose.Data;
 using RevolutionShared.Rose.Data.NPC;
 using RoseSandboxServer.Core.World;
@@ -16,7 +18,7 @@ namespace RoseSandboxServer.Core.Data.Entities
     /// <summary>
     /// NPC entity.
     /// </summary>
-    public class NPC : Entity
+    public class NPC : Entity, IDataEntity<NPCData>
     {
         readonly NPCData data;
 
@@ -30,7 +32,7 @@ namespace RoseSandboxServer.Core.Data.Entities
         /// <param name="id">ID.</param>
         /// <param name="data">Data.</param>
         /// <param name="map">Map.</param>
-        public NPC(int id,NPCData data, Map map) : base(id, EntityType.NPC, data.ID, map)
+        public NPC(int id,WorldPosition position, NPCData data, Map map) : base(id, position, EntityType.NPC, map)
         {
             this.data = data;
         }
@@ -44,9 +46,9 @@ namespace RoseSandboxServer.Core.Data.Entities
         {
             await base.Update(context);
 
-            if (lastActionTime + actionCooldown <= context.Time) 
+            if (lastActionTime + actionCooldown <= context.Time)
             {
-                ChangePrices(context);
+           //     ChangePrices(context);
             }
         }
 
@@ -71,13 +73,25 @@ namespace RoseSandboxServer.Core.Data.Entities
             }
         }
 
+        public override void WriteToPacket(PacketOut packet)
+        {
+            base.WriteToPacket(packet);
+
+            packet.AddNew(zToInfos());
+        }
+
         /// <summary>
         /// NPC to sub infos.
         /// </summary>
         /// <returns>Sub infos.</returns>
-        public override EntitySubInfos ToSubInfos()
+        public override ServerEntityInfos ToSubInfos()
         {
-            return new NPCInfos(data.dialogID);
+            return new NPCInfos(data.id, data.dialogID);
+        }
+
+        public NPCInfos zToInfos()
+        {
+            return new NPCInfos(data.id, data.dialogID);
         }
 
         /// <summary>

@@ -25,6 +25,7 @@ namespace RevolutionCore.Configurations
             ServerPortIsc = serverPortIsc;
         }
 
+
         /// <summary>
         /// Server address.
         /// </summary>

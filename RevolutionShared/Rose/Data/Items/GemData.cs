@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RevolutionShared.Rose.Data.Equipment
+namespace RevolutionShared.Rose.Data.Items
 {
     [Serializable]
-    public class ArmorData : EquipmentData
+    public class GemData : ItemData
     {
-        public short defense;
-        public short magicDefense;
     }
 }

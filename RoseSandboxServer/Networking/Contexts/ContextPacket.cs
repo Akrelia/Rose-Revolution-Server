@@ -87,7 +87,7 @@ namespace RoseSandboxServer.Networking.Contexts
         /// <returns>Task.</returns>
         public override async Task Send(SandboxServer server)
         {
-            await server.SendZonePacket(sourceClient, packet);
+            await server.SendZonePacket(sourceClient, packet, false);
         }
     }
 

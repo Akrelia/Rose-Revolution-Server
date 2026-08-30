@@ -10,6 +10,7 @@ using RoseSandboxServer.Core.World;
 using RoseSandboxServer.Networking.Contexts;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -66,12 +67,6 @@ namespace RoseSandboxServer.Core
         public override void InitializeClient(SandboxClient client)
         {
             base.InitializeClient(client);
-
-            client.map = configuration.StartingMapID;
-
-            var spawn = maps[client.map].GetDefaultSpawn();
-
-            client.player.position = spawn.position;
         }
 
         /// <summary>
@@ -127,7 +122,7 @@ namespace RoseSandboxServer.Core
 
                             if (enemyData != null)
                             {
-                                map.SpawnEntityByID(enemyData, position);
+                                map.SpawnEnemyByID(enemyData, position);
                             }
                         }
                     }
@@ -148,13 +143,13 @@ namespace RoseSandboxServer.Core
         {
             base.Disconnect(client);
 
-            if (maps.ContainsKey(client.map))
+            if (client.player != null && client.player.map != null)
             {
-                var map = maps[client.map];
+                var map = client.player.map;
 
-                if (map.Players.ContainsKey(client.ID))
+                if (map.Players.ContainsKey(client.player.id))
                 {
-                    map.Players.Remove(client.ID);
+                    map.Players.Remove(client.player.id);
                 }
 
                 else
@@ -165,7 +160,7 @@ namespace RoseSandboxServer.Core
 
             else
             {
-                Logger.LogImportantMessage($"Map {client.map} does not exist (this shouldn't happen");
+                Logger.LogWarning("Player disconnected was not on a map (should not happen)");
             }
         }
 
@@ -179,7 +174,7 @@ namespace RoseSandboxServer.Core
         {
             if (maps.ContainsKey(mapID))
             {
-               await SendMapPacket(maps[mapID], packet);
+                await SendMapPacket(maps[mapID], packet);
             }
 
             else
@@ -198,7 +193,9 @@ namespace RoseSandboxServer.Core
         {
             foreach (var player in map.Players.Values)
             {
-                await SendPacket(player, packet);
+                var client = clients.FirstOrDefault(c => c.ID == player.idClient); // TODO : Turn clients into a Dictio ?
+
+                await SendPacket(client, packet);
             }
         }
 
@@ -208,13 +205,15 @@ namespace RoseSandboxServer.Core
         /// <param name="originClient">Origin client.</param>
         /// <param name="packet">Packet.</param>
         /// <returns>Task.</returns>
-        public async Task SendZonePacket(SandboxClient originClient, PacketOut packet)
+        public async Task SendZonePacket(SandboxClient originClient, PacketOut packet, bool ignoreOriginClient)
         {
-            var clients = maps[originClient.map].GetNearbyPlayers(originClient);
+            var players = originClient.player.map.GetNearbyPlayers(originClient.player);
 
-            foreach (var client in clients)
+            foreach (var player in players)
             {
-                if (originClient != null && client.ID == originClient.ID)
+                var client = clients.FirstOrDefault(c => c.ID == player.idClient);
+
+                if (ignoreOriginClient && originClient != null && client.ID == originClient.ID)
                 {
                     continue;
                 }

@@ -59,6 +59,7 @@ namespace RevolutionShared.Rose.Data
         public int npcID;
         public string name;
         public WorldPosition position;
+        public WorldRotation rotation;
 
         public NPCSpawn()
         {

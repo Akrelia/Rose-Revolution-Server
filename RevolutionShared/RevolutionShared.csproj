@@ -77,9 +77,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\BodyPartAttribute.cs" />
     <Compile Include="Attributes\PacketCommand.cs" />
     <Compile Include="Data\Records.cs" />
     <Compile Include="Data\WorldPosition.cs" />
+    <Compile Include="Data\WorldRotation.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="JSON\SpawnData.cs" />
     <Compile Include="Packets\Commands.cs" />
@@ -91,17 +93,28 @@
     <Compile Include="Packets\PacketOut.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rose\Data\Ability.cs" />
-    <Compile Include="Rose\Data\Equipment\SubWeaponData.cs" />
+    <Compile Include="Rose\Data\Clan\ClanGradeData.cs" />
+    <Compile Include="Rose\Data\Items\ConsumableData.cs" />
+    <Compile Include="Rose\Data\Items\Equipment\Armor\BackData.cs" />
+    <Compile Include="Rose\Data\Items\Equipment\Armor\BodyArmorData.cs" />
+    <Compile Include="Rose\Data\Items\Equipment\Armor\FaceItemData.cs" />
+    <Compile Include="Rose\Data\Items\Equipment\Armor\HandwearData.cs" />
+    <Compile Include="Rose\Data\Items\Equipment\JewelData.cs" />
+    <Compile Include="Rose\Data\Items\GemData.cs" />
+    <Compile Include="Rose\Data\Items\MaterialData.cs" />
+    <Compile Include="Rose\Data\Items\Equipment\SubWeaponData.cs" />
+    <Compile Include="Rose\Data\Game\ItemGradeData.cs" />
     <Compile Include="Rose\Data\IData.cs" />
+    <Compile Include="Rose\Data\Items\ItemData.cs" />
     <Compile Include="Rose\Data\MapData.cs" />
     <Compile Include="Rose\Data\NPC\Drops\DropData.cs" />
     <Compile Include="Rose\Data\NPC\Drops\DropTableData.cs" />
     <Compile Include="Rose\Data\RoseData.cs" />
-    <Compile Include="Rose\Data\Equipment\ArmorData.cs" />
-    <Compile Include="Rose\Data\Equipment\EquipmentData.cs" />
-    <Compile Include="Rose\Data\Equipment\FootwearData.cs" />
-    <Compile Include="Rose\Data\Equipment\HeadgearData.cs" />
-    <Compile Include="Rose\Data\Equipment\WeaponData.cs" />
+    <Compile Include="Rose\Data\Items\Equipment\Armor\ArmorData.cs" />
+    <Compile Include="Rose\Data\Items\Equipment\EquipmentData.cs" />
+    <Compile Include="Rose\Data\Items\Equipment\Armor\FootwearData.cs" />
+    <Compile Include="Rose\Data\Items\Equipment\Armor\HeadgearData.cs" />
+    <Compile Include="Rose\Data\Items\Equipment\WeaponData.cs" />
     <Compile Include="Rose\Data\NPC\EntityData.cs" />
     <Compile Include="Rose\Data\NPC\EnemyData.cs" />
     <Compile Include="Rose\Data\NPC\NPCData.cs" />

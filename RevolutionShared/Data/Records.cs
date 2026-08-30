@@ -22,32 +22,35 @@ namespace RevolutionShared.Data
 
     }
 
-    [MessagePackObject]
-    public partial record CharacterAppearance(
-        [property: Key(0)] GenderType Gender,
-        [property: Key(1)] byte Hair,
-        [property: Key(2)] byte Face,
-        [property: Key(3)] int Back,
-        [property: Key(4)] int Body,
-        [property: Key(5)] int Gloves,
-        [property: Key(6)] int Shoes,
-        [property: Key(7)] int Mask,
-        [property: Key(8)] int Hat,
-        [property: Key(9)] int Weapon,
-        [property: Key(10)] int SubWeapon
+    public record CharacterAppearance(
+        GenderType Gender,
+        byte Hair,
+        byte Face,
+        int Back,
+        int Body,
+        int Gloves,
+        int Shoes,
+        int Mask,
+        int Hat,
+        int Weapon,
+        int SubWeapon
     ) : SerializableRecord;
 
-    //  public record EntityInfos(int id, EntityType type, int dataID, WorldPosition position) : SerializableRecord<EntityInfos>;
-    //  public record EnemyInfos(int id, EntityType type, int dataID, WorldPosition position, int health) : EntityInfos(id, type, dataID, position);
-    // public record EnemyInfos(int id, EntityType type, int dataID, WorldPosition position, int health) : SerializableRecord<EnemyInfos>;
-    public record EntityInfos(int id, EntityType type, int dataID, WorldPosition position) : SerializableRecord;
-    [Union(0, typeof(EnemyInfos))]
-    [Union(1, typeof(NPCInfos))]
+    public record EntityInfos(int id, EntityType type, WorldPosition position) : SerializableRecord;
+
+    [Union(0, typeof(ServerEntityInfos))]
     public abstract record EntitySubInfos() : SerializableRecord;
+
+    public abstract record ServerEntityInfos(int dataID) : EntitySubInfos;
+
     [EntitySubInfos(EntityType.Enemy)]
-    public record EnemyInfos(int health) : EntitySubInfos;
+    public record EnemyInfos(int dataID, int health) : ServerEntityInfos(dataID);
+
     [EntitySubInfos(EntityType.NPC)]
-    public record NPCInfos(int dialogID) : EntitySubInfos;
+    public record NPCInfos(int dataID, int dialogID) : ServerEntityInfos(dataID);
+
+    [EntitySubInfos(EntityType.Character)]
+    public record CharacterInfos(string name, string clanName, byte[] clanIcon, byte clanGrade) : EntitySubInfos;
 }
 
 namespace System.Runtime.CompilerServices

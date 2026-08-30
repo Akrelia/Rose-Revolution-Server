@@ -127,7 +127,7 @@ namespace RevolutionCore.Networking
             {
                 while (!cancelToken.IsCancellationRequested)
                 {
-                    var tcpClient = await listener.AcceptTcpClientAsync().ConfigureAwait(false);
+                    var tcpClient = await listener.AcceptTcpClientAsync();
 
                     var client = AcceptClient(tcpClient);
 
@@ -139,7 +139,7 @@ namespace RevolutionCore.Networking
 
             catch (Exception ex)
             {
-                Logger.LogFatalError($"Server crashed : {ex.Message}{Environment.NewLine}{ex.InnerException.StackTrace}");
+                Logger.LogFatalError($"Server crashed : {ex.Message}{Environment.NewLine}{ex.StackTrace}");
             }
 
             finally
@@ -210,7 +210,7 @@ namespace RevolutionCore.Networking
 
             finally
             {
-                await Task.CompletedTask;
+                //     await Task.CompletedTask;
             }
         }
 
@@ -299,9 +299,16 @@ namespace RevolutionCore.Networking
         /// <returns>Task.</returns>
         public virtual async Task SendPacket(T client, PacketOut packet)
         {
-            Logger.LogImportantMessage("OUT",  $"{client.ToString()}> [{((ServerCommands)packet.Command).ToString()}]");
+            //     Logger.LogImportantMessage("OUT",  $"{client.ToString()}> [{((ServerCommands)packet.Command).ToString()}]");
+            try
+            {
+                await SendPacket(client.TcpClient.GetStream(), packet);
+            }
 
-            await SendPacket(client.TcpClient.GetStream(), packet);
+            catch (Exception ex)
+            {
+                Logger.LogWarning("Can't send packet to client : " + ex.Message);
+            }
         }
 
         /// <summary>

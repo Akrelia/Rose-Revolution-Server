@@ -16,6 +16,11 @@ namespace RoseSandboxServer.Core.Data
     /// </summary>
     public class Player : Entity
     {
+        public string name;
+        public string clanName;
+        public byte clanGrade;
+        public byte[] clanIcon;
+        public long idClient; // Just store the client ID and not the whole client because it's way more clean and clusterized
         CharacterAppearance appearance;
 
         /// <summary>
@@ -24,24 +29,34 @@ namespace RoseSandboxServer.Core.Data
         /// <param name="id"></param>
         /// <param name="type"></param>
         /// <param name="dataID"></param>
-        public Player(int id, EntityType type, int dataID, Map map) : base(id, type, dataID, map)
+        public Player(int id, Map map, WorldPosition position, string name, long idClient) : base(id, position, EntityType.Character, map)
         {
+            this.name = name;
+            this.position = position;
+            this.idClient = idClient;
         }
 
         /// <summary>
         /// Update the player.
         /// </summary>
         /// <param name="context">Context.</param>
-        public override async Task Update(TickContext context)
+        public async Task Update(TickContext context)
         {
-            await base.Update(context);
-
             // Anything related to player only
         }
 
-        public override EntitySubInfos ToSubInfos()
+        /// <summary>
+        /// TO sub infos.
+        /// </summary>
+        /// <returns></returns>
+        public override ServerEntityInfos ToSubInfos()
         {
-            throw new NotImplementedException();
+            return null;
+        }
+
+        public CharacterInfos ToCharInfos()
+        {
+            return new CharacterInfos(name, clanName, clanIcon, clanGrade);
         }
 
         /// <summary>
@@ -51,6 +66,15 @@ namespace RoseSandboxServer.Core.Data
         {
             get { return appearance; }
             set { appearance = value; }
+        }
+
+        /// <summary>
+        /// Player in format.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return $"[{id}] {name}";
         }
     }
 }

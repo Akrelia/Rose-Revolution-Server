@@ -8,6 +8,7 @@ using RevolutionShared.Networking.Packets;
 using RevolutionShared.Packets;
 using RevolutionShared.Rose.Data;
 using RoseSandboxServer;
+using RoseSandboxServer.Core.Data;
 using RoseSandboxServer.Core.Data.Entities;
 using RoseSandboxServer.Core.World;
 using System;
@@ -45,14 +46,26 @@ namespace RoseSandboxServer.Core.Handling
             var startingMap = server.Maps[server.Configuration.StartingMapID];
 
             var playerName = packet.GetString();
+            var clanName = packet.GetString();
+            var clanIcon = packet.GetBytes();
+            var clanGrade = packet.GetByte();
+
+            var spawn = startingMap.GetDefaultSpawn();
 
             client.Account = new Account(playerName, AccountRight.GameMaster); // Everyone is a GM in the Sandbox.
+            client.player = new Player(0, startingMap,spawn.position, playerName, client.ID); // 0 here to check if the player has never been on a map yet
 
-            var apparence = packet.DeserializeRecordNew<CharacterAppearance>();
+            client.player.clanName = clanName;
+            client.player.clanIcon = clanIcon; // This is for the sandbox server only, the world server will just send the id and the client will have a clan mark cache
+            client.player.clanGrade = clanGrade;
 
-            var entities = server.Maps[client.map].GetNearbyEntities(client);
+            var apparence = packet.GetNew<CharacterAppearance>();
 
-            startingMap.AddPlayer(client);
+            client.player.Appearance =  apparence;
+
+            var entities = startingMap.GetNearbyEnemies(client.player, 2000);
+
+            var player = startingMap.SpawnPlayer(client.player, startingMap.GetDefaultSpawn().position);
 
             await server.SendPacket(client, Packets.ConnectionResponse(client, startingMap, entities, server.Configuration.MOTD));
 
@@ -116,7 +129,7 @@ namespace RoseSandboxServer.Core.Handling
 
             // var entities = server.Maps[client.map].GetNearbyEntities(client);
 
-            var entities = new List<Entity>();
+            var entities = new List<Enemy>();
 
             await server.SendPacket(client, Packets.AddEntities(entities));
             await server.BroadcastPacket(Packets.PlayerMoved(client, position), client);
@@ -134,14 +147,14 @@ namespace RoseSandboxServer.Core.Handling
             var monsterID = packet.GetInt();
             var amount = packet.GetShort();
 
-            if (amount > 100)
+            if (amount > 10)
             {
-                amount = 100;
+                amount = 10;
             }
 
-            var map = server.Maps[client.map];
+            var map = client.player.map;
 
-            var spawnedEntities = new List<Entity>();
+            var spawnedEntities = new List<Enemy>();
 
             for (int i = 0; i < amount; i++)
             {
@@ -154,13 +167,36 @@ namespace RoseSandboxServer.Core.Handling
                     return;
                 }
 
-                var entity = map.SpawnEntityByID(server.GameData.enemies[monsterID], randomPosition);
+                var entity = map.SpawnEnemyByID(server.GameData.enemies[monsterID], randomPosition);
 
                 spawnedEntities.Add(entity);
             }
 
             await server.BroadcastPacket(Packets.GMCommandExecuted(client, $"Monster Spawn {monsterID} x {amount}"));
             await server.BroadcastPacket(Packets.AddEntities(spawnedEntities));
+        }
+
+        [PacketCommand(ClientCommands.GMCommandDamage)]
+        public async Task GMCommandDamage(SandboxClient client, PacketIn packet)
+        {
+            var amount = packet.GetInt();
+            var range = packet.GetInt();
+
+            var entities = client.player.map.GetNearbyEnemies(client.player, range);
+
+            for (int i = 0; i < entities.Count;i++)
+            {
+                entities[i].DoDamage(amount);
+
+                if (entities[i].CurrentHealth <= 0)
+                {
+                    await server.SendZonePacket(client, Packets.EntityDeath(entities[i]), false); // Temp
+
+                    client.player.map.RemoveEnemy(entities[i]);
+                }
+            }
+
+            await server.BroadcastPacket(Packets.GMCommandExecuted(client, $"Damage all enemies (Damage : {amount}) (Range : {range})"));
         }
 
         /// <summary>
@@ -200,17 +236,17 @@ public static class Packets
     /// Packet - Connection Response.
     /// </summary>
     /// <returns></returns>
-    public static PacketOut ConnectionResponse(SandboxClient client, Map map, List<Entity> entities, string motd)
+    public static PacketOut ConnectionResponse(SandboxClient client, Map map, List<Enemy> enemies, string motd)
     {
         PacketOut packet = new PacketOut(ServerCommands.SandboxConnectionResponse);
 
         packet.Add(client.ID);
-        packet.Add(client.Account.username);
+        packet.AddNew(client.player.ToCharInfos());
         packet.Add(map.MapData.ID);
         packet.Add(map.NPCs);
         packet.Add(motd);
         packet.Add(map.GetDefaultSpawn().position);
-        packet.Add(entities);
+        packet.Add(enemies);
 
         return packet;
     }
@@ -252,9 +288,8 @@ public static class Packets
 
                 packet.Add(client.ID);
 
-                packet.Add(client.Account.username);
-
                 packet.AddNew(client.player.Appearance);
+                packet.AddNew(client.player.ToCharInfos());
 
                 packet.Add(client.player.position);
             }
@@ -273,9 +308,11 @@ public static class Packets
         PacketOut packet = new PacketOut(ServerCommands.PlayerConnected);
 
         packet.Add(client.ID);
-        packet.Add(client.Account.username);
 
-        packet.SerializeRecordNew(client.player.Appearance);
+        packet.AddNew(client.player.Appearance);
+        packet.AddNew(client.player.ToCharInfos());
+
+        packet.Add(client.player.position);
 
         return packet;
     }
@@ -317,7 +354,7 @@ public static class Packets
     /// </summary>
     /// <param name="entities">Entities around.</param>
     /// <returns>Packet.</returns>
-    public static PacketOut AddEntities(List<Entity> entities)
+    public static PacketOut AddEntities(List<Enemy> entities)
     {
         PacketOut packet = new PacketOut(ServerCommands.AddEntities);
 
@@ -353,6 +390,20 @@ public static class Packets
         packet.Add(entity.id);
 
         packet.Add(entity.position);
+
+        return packet;
+    }
+
+    /// <summary>
+    /// Packet - Entity death.
+    /// </summary>
+    /// <param name="entity">Entity.</param>
+    /// <returns></returns>
+    public static PacketOut EntityDeath(Entity entity)
+    {
+        PacketOut packet = new PacketOut(ServerCommands.EntityDeath);
+
+        packet.Add(entity.id);
 
         return packet;
     }

@@ -1,9 +1,13 @@
-﻿using RevolutionShared.Networking.Packets;
+﻿using RevolutionShared.Attributes;
+using RevolutionShared.Networking.Packets;
+using RevolutionShared.Rose.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
+using RevolutionShared.Rose.Data.Items.Equipment;
 
 namespace RevolutionShared.Utils
 {
@@ -69,6 +73,28 @@ namespace RevolutionShared.Utils
             var anyDuplicate = props.GroupBy(x => x.GetValue(null)).Any(g => g.Count() > 1);
 
             return anyDuplicate;
+        }
+
+        /// <summary>
+        /// Build a register for every equipment data and body part links.
+        /// </summary>
+        /// <returns></returns>
+        public static Dictionary<BodyPartType, Type> GetEquipmentDataTypes()
+        {
+            var rootNamespace = typeof(EquipmentData).Namespace;
+
+            return typeof(EquipmentData).Assembly
+                .GetTypes()
+                .Where(x => x.Namespace != null && (x.Namespace == rootNamespace || x.Namespace.StartsWith(rootNamespace + ".")))
+                .Where(x => typeof(EquipmentData).IsAssignableFrom(x))
+                .Where(x => !x.IsAbstract)
+                .Select(x => new
+                {
+                    Type = x,
+                    Attribute = x.GetCustomAttribute<BodyPartAttribute>()
+                })
+                .Where(x => x.Attribute != null)
+                .ToDictionary(x => x.Attribute.Type, x => x.Type);
         }
 
         /// <summary>

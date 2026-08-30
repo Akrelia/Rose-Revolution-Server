@@ -1,15 +1,7 @@
 ﻿using RevolutionCore.Networking;
-using RevolutionCore.Utils;
-using RevolutionShared.Data;
 using RevolutionShared.Rose.Data;
 using RoseSandboxServer.Core.Data;
 using RoseSandboxServer.Networking.Contexts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Sockets;
-using System.Numerics;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace RoseSandboxServer
@@ -19,7 +11,6 @@ namespace RoseSandboxServer
     /// </summary>
     public class SandboxClient : RoseClient
     {
-        public int map;
         public Player player;
 
         /// <summary>
@@ -27,7 +18,6 @@ namespace RoseSandboxServer
         /// </summary>
         public SandboxClient() : base()
         {
-            player = new Player((int)id, EntityType.Player, 0, null); // TODO : remove this asap
         }
 
         /// <summary>

@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RevolutionShared.Rose.Data.Equipment
+namespace RevolutionShared.Rose.Data.Items.Equipment
 {
+    /// <summary>
+    /// Jewel Data.
+    /// </summary>
     [Serializable]
-    public class FootwearData : ArmorData
+    public class JewelData : ItemData
     {
-        public int moveSpeed;
     }
 }

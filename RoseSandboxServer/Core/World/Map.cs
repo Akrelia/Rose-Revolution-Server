@@ -2,6 +2,7 @@
 using RevolutionShared.Data;
 using RevolutionShared.Rose.Data;
 using RevolutionShared.Rose.Data.NPC;
+using RoseSandboxServer.Core.Data;
 using RoseSandboxServer.Core.Data.Entities;
 using RoseSandboxServer.Networking.Contexts;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace RoseSandboxServer.Core.World
         MapData mapData;
         Dictionary<int, Entity> entities;
         Dictionary<int, NPC> npcs;
-        Dictionary<long, SandboxClient> players;
+        Dictionary<int, Player> players;
 
         /// <summary>
         /// Constructor.
@@ -29,7 +30,7 @@ namespace RoseSandboxServer.Core.World
         {
             this.mapData = mapData;
 
-            players = new Dictionary<long, SandboxClient>();
+            players = new Dictionary<int, Player>();
             entities = new Dictionary<int, Entity>();
             npcs = new Dictionary<int, NPC>();
         }
@@ -77,7 +78,7 @@ namespace RoseSandboxServer.Core.World
         {
             var entityID = GetNewEntityId();
 
-            NPC entity = new NPC(entityID, data, this);
+            NPC entity = new NPC(entityID, position, data, this);
 
             entity.position = position;
 
@@ -91,17 +92,45 @@ namespace RoseSandboxServer.Core.World
         /// </summary>
         /// <param name="dataID">Data ID.</param>
         /// <param name="position">Position.</param>
-        public Entity SpawnEntityByID(EnemyData data, WorldPosition position)
+        public Enemy SpawnEnemyByID(EnemyData data, WorldPosition position)
         {
             var entityID = GetNewEntityId();
 
-            Enemy entity = new Enemy(entityID, data, this);
+            Enemy entity = new Enemy(entityID, position, data, this);
 
             entity.position = position;
 
             entities.Add(entityID, entity);
 
             return entity;
+        }
+
+        /// <summary>
+        /// Spawn a player in the map.
+        /// </summary>
+        /// <param name="name">Name of the player.</param>
+        /// <param name="position">Position.</param>
+        /// <returns>Player.</returns>
+        public Player SpawnPlayer(Player player, WorldPosition position)
+        {
+            if (!players.ContainsKey(player.id))
+            {
+                var entityID = GetNewEntityId();
+
+                player.id = entityID;
+                player.position = position;
+
+                players.Add(entityID, player);
+
+                return player;
+            }
+
+            else
+            {
+                Logger.LogImportantMessage($"Player {player} already exists in map {mapData.mapName}");
+            }
+
+            return player;
         }
 
         /// <summary>
@@ -134,17 +163,17 @@ namespace RoseSandboxServer.Core.World
         /// <summary>
         /// Get entities nearby the client.
         /// </summary>
-        /// <param name="client">Client.</param>
+        /// <param name="originPlayer">Client.</param>
         /// <returns>List of nearby entities.</returns>
-        public List<SandboxClient> GetNearbyPlayers(SandboxClient client)
+        public List<Player> GetNearbyPlayers(Player originPlayer)
         {
-            var nearbyPlayers = new List<SandboxClient>();
+            var nearbyPlayers = new List<Player>();
 
-            for (int i = 0; i < players.Count; i++)
+            foreach (var player in players.Values)
             {
-                if (WorldPosition.Distance(client.player.position, players[i].player.position) <= 10000)
+                if (WorldPosition.Distance(originPlayer.position, player.position) <= 10000)
                 {
-                    nearbyPlayers.Add(players[i]);
+                    nearbyPlayers.Add(player);
                 }
             }
 
@@ -154,15 +183,15 @@ namespace RoseSandboxServer.Core.World
         /// <summary>
         /// Get entities nearby the client.
         /// </summary>
-        /// <param name="client">Client.</param>
+        /// <param name="player">Client.</param>
         /// <returns>List of nearby entities.</returns>
-        public List<Entity> GetNearbyEntities(SandboxClient client)
+        public List<Enemy> GetNearbyEnemies(Player player, float range)
         {
-            var nearbyEntities = new List<Entity>();
+            var nearbyEntities = new List<Enemy>();
 
-            foreach (Entity entity in entities.Values)
+            foreach (Enemy entity in entities.Values)
             {
-                if (WorldPosition.Distance(client.player.position, entity.position) <= 10000)
+                if (WorldPosition.Distance(player.position, entity.position) <= range)
                 {
                     nearbyEntities.Add(entity);
                 }
@@ -172,37 +201,29 @@ namespace RoseSandboxServer.Core.World
         }
 
         /// <summary>
-        /// Add a player to the map.
+        /// Remove a player from the map.
         /// </summary>
         /// <param name="client">Client.</param>
-        public void AddPlayer(SandboxClient client)
+        public void RemovePlayer(Player player)
         {
-            if (!players.ContainsKey(client.ID))
+            if (players.ContainsKey(player.id))
             {
-                players.Add(client.ID, client);
+                players.Remove(player.id);
             }
 
             else
             {
-                Logger.LogImportantMessage($"Player {client} already exists in map {mapData.mapName}");
+                Logger.LogImportantMessage($"Player {player} does not exist in map {mapData.mapName}");
             }
         }
 
         /// <summary>
-        /// Remove a player from the map.
+        /// Remove an enemy.
         /// </summary>
-        /// <param name="client">Client.</param>
-        public void RemovePlayer(SandboxClient client)
+        /// <param name="enemy">Enemy.</param>
+        public void RemoveEnemy(Enemy enemy)
         {
-            if (players.ContainsKey(client.ID))
-            {
-                players.Remove(client.ID);
-            }
-
-            else
-            {
-                Logger.LogImportantMessage($"Player {client} does not exist in map {mapData.mapName}");
-            }
+            entities.Remove(enemy.id);
         }
 
         /// <summary>
@@ -216,7 +237,7 @@ namespace RoseSandboxServer.Core.World
         /// <summary>
         /// Gets the players currently in the map.
         /// </summary>
-        public Dictionary<long, SandboxClient> Players
+        public Dictionary<int, Player> Players
         {
             get { return players; }
         }

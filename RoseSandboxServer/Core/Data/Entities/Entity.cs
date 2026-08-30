@@ -15,11 +15,10 @@ namespace RoseSandboxServer.Core.Data.Entities
     public abstract class Entity : IPacketWritable
     {
         public int id;
-        public int dataID;
         public EntityType type;
         public Map map;
         public WorldPosition position;
-
+        public WorldPosition initialPosition;
         public double startingTime;
 
         /// <summary>
@@ -27,11 +26,11 @@ namespace RoseSandboxServer.Core.Data.Entities
         /// </summary>
         /// <param name="id">Id of the monster.</param>
         /// <param name="dataId">Data.</param>
-        public Entity(int id, EntityType type, int dataID, Map map)
+        public Entity(int id, WorldPosition position, EntityType type, Map map)
         {
             this.id = id;
+            this.position = initialPosition = position;
             this.type = type;
-            this.dataID = dataID;
             this.map = map;
             this.startingTime = SandboxServer.GameTime; // TODO : make a better way to access gametime that doesn't require a static reference to the server or passing it though a lot of objets
         }
@@ -51,14 +50,14 @@ namespace RoseSandboxServer.Core.Data.Entities
         /// <returns>Serializable.</returns>
         public EntityInfos ToInfos()
         {
-            return new EntityInfos(id, type, dataID, position);
+            return new EntityInfos(id, type, position);
         }
 
         /// <summary>
         /// Entity to sub infos.
         /// </summary>
         /// <returns>Sub infos.</returns>
-        public abstract EntitySubInfos ToSubInfos();
+        public abstract ServerEntityInfos ToSubInfos();
 
         /// <summary>
         /// Write to packet.
@@ -67,7 +66,7 @@ namespace RoseSandboxServer.Core.Data.Entities
         public virtual void WriteToPacket(PacketOut packet)
         {
             packet.AddNew(ToInfos());
-            packet.AddNew(ToSubInfos());
+         //   packet.AddNew(ToSubInfos());
         }
     }
 }

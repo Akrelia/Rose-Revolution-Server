@@ -30,7 +30,7 @@ namespace RevolutionShared.Rose.Data
 
     public enum EntityType
     {
-        Player = 1,
+        Character = 1,
         Enemy = 2,
         Summon = 3,
         NPC = 4
@@ -141,5 +141,18 @@ namespace RevolutionShared.Rose.Data
     {
         Normal = 1,
         Magic = 2
+    }
+
+    public enum NameColor
+    {
+        Gray = 0,
+        LightBlue = 1,
+        Blue = 2,
+        Green = 3,
+        Yellow = 4,
+        Orange = 5,
+        Red = 6,
+        Pink = 7,
+        Violet = 8,
     }
 }

@@ -87,8 +87,6 @@ namespace RevolutionCore.Utils
         {
             byte[] data = MessagePackSerializer.Serialize(obj, MessagePack.Resolvers.ContractlessStandardResolver.Options);
 
-            packet.Add(data.Length);
-
             packet.Add(data);
         }
 
@@ -101,8 +99,6 @@ namespace RevolutionCore.Utils
         public static void SerializeRecordNew<T>(this PacketOut packet, T obj) where T : SerializableRecord
         {
             byte[] data = MessagePackSerializer.Serialize(obj, MessagePackConfig.Options);
-
-            packet.Add(data.Length);
 
             packet.Add(data);
         }
